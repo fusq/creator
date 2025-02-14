@@ -26,15 +26,18 @@ const WalletProvider: FC = () => {
     <ConnectionProvider endpoint={endpoint}>
       <SolanaWalletProvider wallets={wallets} autoConnect>
         <WalletModalProvider>
-          <div className="min-h-screen bg-gray-100">
+          <div className="min-h-screen bg-neutral-900">
             <header className="p-4 flex justify-end items-center">
               <WalletBalance />
               <WalletMultiButton />
             </header>
             <main className="flex flex-col items-center justify-center px-4 pt-16">
-              <h1 className="text-4xl font-bold mb-12 text-neutral-900">
-                Wallet Dashboard
+              <h1 className="text-4xl font-bold mb-2 text-white">
+                Create Your Own Token FAST
               </h1>
+              <p className="text-lg text-neutral-400 mb-8">
+                Launch your own token on Solana in seconds. No coding required.
+              </p>
               <TokenCreationForm />
             </main>
           </div>

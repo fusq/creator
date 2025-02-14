@@ -40,7 +40,7 @@ export const WalletBalance = () => {
   if (balance === null) return null;
 
   return (
-    <span className="mr-2 px-4 py-1 bg-gray-200 text-neutral-900 rounded-md text-sm h-12 flex items-center">
+    <span className="mr-2 px-4 py-1 bg-neutral-800 text-neutral-300 rounded-md text-sm h-12 flex items-center">
       {balance.toFixed(2)} SOL
     </span>
   );
