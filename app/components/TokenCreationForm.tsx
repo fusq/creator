@@ -54,15 +54,22 @@ interface TokenMetadata {
 export const TokenCreationForm = () => {
   const { publicKey, signTransaction, connected } = useWallet();
   const [isLoading, setIsLoading] = useState(false);
+  const [isImageUploading, setIsImageUploading] = useState(false);
+  const [isTransactionSubmitted, setIsTransactionSubmitted] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [createdTokenInfo, setCreatedTokenInfo] = useState({
+    tokenAddress: "",
+    txId: "",
+  });
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     image: "",
     symbol: "",
     totalSupply: "1000000000",
-    creatorName: "Creator Name",
-    creatorWebsite: "https://creatorwebsite.com",
+    creatorName: "MemeFast.io",
+    creatorWebsite: "https://memefast.io",
     website: "",
     twitter: "",
     telegram: "",
@@ -73,6 +80,7 @@ export const TokenCreationForm = () => {
     customCreatorInfo: true,
   });
   const [imagePreview, setImagePreview] = useState<string>("");
+  const [copySuccess, setCopySuccess] = useState(false);
 
   const [devnetConnection, setDevnetConnection] = useState<Connection | null>(
     null
@@ -154,14 +162,14 @@ export const TokenCreationForm = () => {
       setImagePreview(objectUrl);
 
       // Upload to IPFS
-      setIsLoading(true);
+      setIsImageUploading(true);
       const ipfsUrl = await uploadImageToIPFS(file);
       setFormData((prev) => ({ ...prev, image: ipfsUrl }));
-      setIsLoading(false);
     } catch (error) {
       console.error("Error handling file:", error);
       alert("Error uploading image. Please try again.");
-      setIsLoading(false);
+    } finally {
+      setIsImageUploading(false);
     }
   }, []);
 
@@ -383,6 +391,9 @@ export const TokenCreationForm = () => {
       const signedTransaction = await signTransaction(transaction);
       signedTransaction.partialSign(mintKeypair);
 
+      // Set transaction submitted flag right before sending the transaction
+      setIsTransactionSubmitted(true);
+
       // Send and confirm the transaction
       const txid = await devnetConnection.sendRawTransaction(
         signedTransaction.serialize()
@@ -401,6 +412,13 @@ export const TokenCreationForm = () => {
         )} SOL transferred to BVZfAN6Fmws2scytd6V7TySDWSm1DZFCVXbUfHLSqdpi`
       );
 
+      // After successful creation, update the state with token info
+      setCreatedTokenInfo({
+        tokenAddress: mintKeypair.publicKey.toString(),
+        txId: txid,
+      });
+      setShowSuccessModal(true);
+
       setFormData({
         name: "",
         description: "",
@@ -418,10 +436,6 @@ export const TokenCreationForm = () => {
         revokeUpdateAuthority: true,
         customCreatorInfo: true,
       });
-
-      alert(
-        `Token created successfully! Token mint address: ${mintKeypair.publicKey.toString()}`
-      );
     } catch (error: unknown) {
       console.error("Error creating token:", error);
       if (error instanceof Error) {
@@ -431,11 +445,22 @@ export const TokenCreationForm = () => {
       }
     } finally {
       setIsLoading(false);
+      setIsTransactionSubmitted(false);
+    }
+  };
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 1000);
+    } catch (err) {
+      console.error("Failed to copy text: ", err);
     }
   };
 
   const renderStep1 = () => (
-    <div className="space-y-8 border border-neutral-600 rounded-lg p-8 text-white">
+    <div className="space-y-8 border border-indigo-600 rounded-lg p-8 text-white bg-neutral-800 bg-opacity-50 shadow-lg shadow-indigo-600/40">
       <div className="flex space-x-6">
         <div className="flex-1">
           <label htmlFor="name" className="block text-base font-medium mb-2">
@@ -450,7 +475,7 @@ export const TokenCreationForm = () => {
             required
             placeholder="Meme Coin"
             disabled={!connected || !publicKey}
-            className="p-3 block w-full rounded-md bg-neutral-800 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
+            className="p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
           />
         </div>
         <div className="flex-1">
@@ -466,7 +491,7 @@ export const TokenCreationForm = () => {
             required
             placeholder="MEMC"
             disabled={!connected || !publicKey}
-            className="p-3 block w-full rounded-md bg-neutral-800 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
+            className="p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
           />
         </div>
       </div>
@@ -475,7 +500,7 @@ export const TokenCreationForm = () => {
         className="border-2 border-dashed border-gray-300 rounded-lg p-12 cursor-pointer hover:border-indigo-500 transition-colors min-h-[200px] flex items-center justify-center"
       >
         <input {...getInputProps()} />
-        {isLoading ? (
+        {isImageUploading ? (
           <div className="text-center">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>
             <p className="mt-2 text-neutral-400">Uploading image...</p>
@@ -503,7 +528,7 @@ export const TokenCreationForm = () => {
   );
 
   const renderStep2 = () => (
-    <div className="space-y-8 text-white border border-neutral-600 rounded-lg p-8">
+    <div className="space-y-8 text-white border border-indigo-600 rounded-lg p-8 bg-neutral-800 bg-opacity-50 shadow-lg shadow-indigo-600/40">
       <div>
         <label
           htmlFor="totalSupply"
@@ -520,7 +545,7 @@ export const TokenCreationForm = () => {
           required
           min="1"
           disabled={!connected || !publicKey}
-          className="p-3 block w-full rounded-md bg-neutral-800 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
+          className="p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
         />
         <p className="mt-2 text-sm text-neutral-400">
           1 billion by default (recommended), 6 decimals
@@ -541,7 +566,7 @@ export const TokenCreationForm = () => {
           required
           rows={6}
           disabled={!connected || !publicKey}
-          className="p-3 block w-full rounded-md bg-neutral-800 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
+          className="p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
           placeholder="Describe your token's purpose and vision..."
         />
       </div>
@@ -549,7 +574,7 @@ export const TokenCreationForm = () => {
   );
 
   const renderStep3 = () => (
-    <div className="space-y-8 text-white border border-neutral-600 rounded-lg p-8">
+    <div className="space-y-8 text-white border border-indigo-600 rounded-lg p-8 bg-neutral-800 bg-opacity-50 shadow-lg shadow-indigo-600/40">
       <div>
         <label htmlFor="website" className="block text-base font-medium mb-2">
           Token Website (Optional)
@@ -562,7 +587,7 @@ export const TokenCreationForm = () => {
           value={formData.website}
           onChange={handleChange}
           disabled={!connected || !publicKey}
-          className="p-3 block w-full rounded-md bg-neutral-800 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
+          className="p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
         />
       </div>
       <div>
@@ -577,7 +602,7 @@ export const TokenCreationForm = () => {
           value={formData.twitter}
           onChange={handleChange}
           disabled={!connected || !publicKey}
-          className="p-3 block w-full rounded-md bg-neutral-800 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
+          className="p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
         />
       </div>
       <div>
@@ -592,7 +617,7 @@ export const TokenCreationForm = () => {
           value={formData.telegram}
           onChange={handleChange}
           disabled={!connected || !publicKey}
-          className="p-3 block w-full rounded-md bg-neutral-800 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
+          className="p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
         />
       </div>
       <div>
@@ -607,7 +632,7 @@ export const TokenCreationForm = () => {
           value={formData.discord}
           onChange={handleChange}
           disabled={!connected || !publicKey}
-          className="p-3 block w-full rounded-md bg-neutral-800 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
+          className="p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
         />
       </div>
       <div className="mt-12">
@@ -651,7 +676,7 @@ export const TokenCreationForm = () => {
                 onChange={handleChange}
                 required
                 disabled={!connected || !publicKey}
-                className="p-3 block w-full rounded-md bg-neutral-800 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
+                className="p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
               />
             </div>
             <div>
@@ -669,7 +694,7 @@ export const TokenCreationForm = () => {
                 onChange={handleChange}
                 required
                 disabled={!connected || !publicKey}
-                className="p-3 block w-full rounded-md bg-neutral-800 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
+                className="p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
               />
             </div>
           </div>
@@ -730,7 +755,7 @@ export const TokenCreationForm = () => {
                 className={`w-full py-2 px-4 rounded-md ${
                   formData.revokeFreeze
                     ? "bg-indigo-600 text-white"
-                    : "bg-neutral-800 text-neutral-400"
+                    : "bg-neutral-700 text-neutral-400"
                 }`}
               >
                 {formData.revokeFreeze ? "Selected" : "Unselected"}
@@ -778,7 +803,7 @@ export const TokenCreationForm = () => {
                 className={`w-full py-2 px-4 rounded-md ${
                   formData.revokeMint
                     ? "bg-indigo-600 text-white"
-                    : "bg-neutral-800 text-neutral-400"
+                    : "bg-neutral-700 text-neutral-400"
                 }`}
               >
                 {formData.revokeMint ? "Selected" : "Unselected"}
@@ -826,7 +851,7 @@ export const TokenCreationForm = () => {
                 className={`w-full py-2 px-4 rounded-md ${
                   formData.revokeUpdateAuthority
                     ? "bg-indigo-600 text-white"
-                    : "bg-neutral-800 text-neutral-400"
+                    : "bg-neutral-700 text-neutral-400"
                 }`}
               >
                 {formData.revokeUpdateAuthority ? "Selected" : "Unselected"}
@@ -873,78 +898,312 @@ export const TokenCreationForm = () => {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="space-y-8 w-[900px] mx-auto mt-8 p-6 mb-16"
-    >
-      {!connected && (
-        <div className="text-center p-4 bg-yellow-100 text-yellow-700 rounded-md mb-4">
-          Please connect your wallet to create a token
+    <>
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-8 w-[900px] mx-auto mt-8 p-6"
+      >
+        {!connected && (
+          <div className="text-center p-4 bg-yellow-100 text-yellow-700 rounded-md mb-4">
+            Please connect your wallet to create a token
+          </div>
+        )}
+        {connected && !publicKey && (
+          <div className="text-center p-4 bg-red-100 text-red-700 rounded-md mb-4">
+            Wallet connected, but public key is not available. Please try
+            reconnecting your wallet.
+          </div>
+        )}
+
+        <div className="mb-4">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-semibold text-white">
+              Step {currentStep} of 3
+            </h2>
+          </div>
+          <div className="h-2 bg-gray-200 rounded-full">
+            <div
+              className="h-2 bg-indigo-600 rounded-full transition-all duration-300"
+              style={{ width: `${(currentStep / 3) * 100}%` }}
+            ></div>
+          </div>
+        </div>
+
+        {renderStepContent()}
+
+        <div className="flex justify-between mt-8">
+          <div>
+            {currentStep > 1 && (
+              <button
+                type="button"
+                onClick={prevStep}
+                className="px-4 py-2 border border-neutral-300 rounded-md shadow-sm font-medium text-neutral-300 hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 text-base flex items-center space-x-2"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+                <span>Back</span>
+              </button>
+            )}
+          </div>
+          <div>
+            {currentStep < 3 && (
+              <button
+                type="button"
+                onClick={nextStep}
+                disabled={!canProceed()}
+                className="px-4 py-2 border border-transparent rounded-md shadow-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400 disabled:cursor-not-allowed text-base flex items-center space-x-2"
+              >
+                <span>Next</span>
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </button>
+            )}
+            {currentStep === 3 && (
+              <button
+                type="submit"
+                disabled={
+                  !connected ||
+                  !publicKey ||
+                  isLoading ||
+                  !formData.image ||
+                  !canProceed()
+                }
+                className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400 disabled:cursor-not-allowed text-base flex items-center justify-center space-x-2"
+              >
+                <span>{isLoading ? "Creating Token..." : "Create Token"}</span>
+                {!isLoading && (
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                )}
+              </button>
+            )}
+          </div>
+        </div>
+      </form>
+
+      {/* Loading Overlay - Only show after transaction is submitted */}
+      {isLoading && isTransactionSubmitted && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-indigo-900 rounded-2xl p-8 max-w-lg w-full">
+            <div className="flex flex-col items-center space-y-4">
+              <div className="relative">
+                <div className="w-16 h-16 border-4 border-indigo-400 border-t-transparent rounded-full animate-spin"></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <svg
+                    className="w-8 h-8 text-indigo-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </div>
+              </div>
+              <div className="text-center">
+                <h3 className="text-xl font-medium text-white mb-2">
+                  Creating Your Token
+                </h3>
+                <p className="text-neutral-400">
+                  Please wait while we process your transaction...
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       )}
-      {connected && !publicKey && (
-        <div className="text-center p-4 bg-red-100 text-red-700 rounded-md mb-4">
-          Wallet connected, but public key is not available. Please try
-          reconnecting your wallet.
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-indigo-900 rounded-2xl p-8 max-w-lg w-full">
+            <div className="flex items-center space-x-4 mb-8">
+              <div className="bg-green-800 rounded-full p-2">
+                <svg
+                  className="w-6 h-6 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-semibold text-white">
+                Token Created Successfully!
+              </h2>
+            </div>
+
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-white mb-2">
+                  Token Address
+                </label>
+                <div className="flex items-center space-x-2">
+                  <code className="flex-1 p-3 bg-neutral-900 rounded-lg text-neutral-300 font-mono text-sm">
+                    {createdTokenInfo.tokenAddress}
+                  </code>
+                  <button
+                    onClick={() =>
+                      copyToClipboard(createdTokenInfo.tokenAddress)
+                    }
+                    className="p-2 text-neutral-400 hover:text-white"
+                  >
+                    {copySuccess ? (
+                      <svg
+                        className="w-5 h-5 text-green-500"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                    ) : (
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"
+                        />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4">
+                <a
+                  href={`https://raydium.io/liquidity/create-pool?fromCurrency=${createdTokenInfo.tokenAddress}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center space-x-2 p-3 bg-neutral-900 hover:bg-neutral-700 rounded-lg text-white transition-colors"
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                    />
+                  </svg>
+                  <span>Create Liquidity Pool</span>
+                </a>
+
+                <a
+                  href={`https://solscan.io/token/${createdTokenInfo.tokenAddress}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center space-x-2 p-3 bg-neutral-900 hover:bg-neutral-700 rounded-lg text-white transition-colors"
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                    />
+                  </svg>
+                  <span>View on Explorer</span>
+                </a>
+
+                <a
+                  href={`https://solscan.io/tx/${createdTokenInfo.txId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center space-x-2 p-3 bg-neutral-900 hover:bg-neutral-700 rounded-lg text-white transition-colors"
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                    />
+                  </svg>
+                  <span>View Transaction</span>
+                </a>
+              </div>
+
+              <p className="text-sm text-neutral-400 text-center mt-6">
+                Add this token to your wallet using the token address above.
+              </p>
+            </div>
+          </div>
         </div>
       )}
-
-      <div className="mb-12">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-medium text-white">
-            Step {currentStep} of 3
-          </h2>
-        </div>
-        <div className="h-3 bg-gray-200 rounded-full">
-          <div
-            className="h-3 bg-indigo-600 rounded-full transition-all duration-300"
-            style={{ width: `${(currentStep / 3) * 100}%` }}
-          ></div>
-        </div>
-      </div>
-
-      {renderStepContent()}
-
-      <div className="flex justify-between mt-8">
-        <div>
-          {currentStep > 1 && (
-            <button
-              type="button"
-              onClick={prevStep}
-              className="px-4 py-2 border border-neutral-300 rounded-md shadow-sm font-medium text-neutral-300 hover:bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 text-base"
-            >
-              Back
-            </button>
-          )}
-        </div>
-        <div>
-          {currentStep < 3 && (
-            <button
-              type="button"
-              onClick={nextStep}
-              disabled={!canProceed()}
-              className="px-4 py-2 border border-transparent rounded-md shadow-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400 disabled:cursor-not-allowed text-base"
-            >
-              Next
-            </button>
-          )}
-          {currentStep === 3 && (
-            <button
-              type="submit"
-              disabled={
-                !connected ||
-                !publicKey ||
-                isLoading ||
-                !formData.image ||
-                !canProceed()
-              }
-              className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400 disabled:cursor-not-allowed text-base"
-            >
-              {isLoading ? "Creating Token..." : "Create Token"}
-            </button>
-          )}
-        </div>
-      </div>
-    </form>
+    </>
   );
 };
