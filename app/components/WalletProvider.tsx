@@ -110,7 +110,7 @@ const WalletProvider: FC = () => {
               </div>
 
               {/* FAQ Section */}
-              <div className="w-[862px] bg-neutral-800 rounded-2xl p-12 mb-16 mt-8 border border-neutral-700">
+              <div className="w-[862px] bg-neutral-800 rounded-2xl p-12 mb-16 border border-neutral-700">
                 <h2 className="text-2xl font-semibold text-white mb-8">
                   Frequently Asked Questions
                 </h2>
