@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
+import GuideFaq from "./GuideFaq";
 import {
   Connection,
   Transaction,
@@ -902,6 +903,12 @@ export const TokenCreationForm = () => {
 
   return (
     <>
+      <h1 className="text-4xl font-bold mb-2 text-white bg-indigo-600">
+        Create Your Own Token FAST
+      </h1>
+      <p className="text-lg text-neutral-400">
+        Launch your own token on Solana in seconds. No coding required.
+      </p>
       <form
         onSubmit={handleSubmit}
         className="space-y-8 w-[900px] mx-auto mt-8 p-6"
@@ -1207,6 +1214,7 @@ export const TokenCreationForm = () => {
           </div>
         </div>
       )}
+      <GuideFaq />
     </>
   );
 };
