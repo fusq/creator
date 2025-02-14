@@ -8,6 +8,7 @@ import {
   PublicKey,
   LAMPORTS_PER_SOL,
 } from "@solana/web3.js";
+import Image from "next/image";
 import {
   Metaplex,
   IdentitySigner,
@@ -507,10 +508,12 @@ export const TokenCreationForm = () => {
           </div>
         ) : imagePreview ? (
           <div className="w-full flex flex-col items-center justify-center">
-            <img
+            <Image
               src={imagePreview}
               alt="Preview"
               className="max-h-24 rounded-lg"
+              width={100}
+              height={100}
             />
             <p className="mt-2 text-sm text-neutral-400">
               {acceptedFiles[0]?.name || ""}
