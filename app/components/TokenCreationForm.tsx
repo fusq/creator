@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useWallet } from "@solana/wallet-adapter-react";
+import { useWallet, useConnection } from "@solana/wallet-adapter-react";
 import {
   Connection,
   Transaction,
@@ -39,6 +39,7 @@ interface TokenMetadata {
 
 export const TokenCreationForm = () => {
   const { publicKey, signTransaction, connected } = useWallet();
+  const { connection } = useConnection();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "test",
@@ -48,17 +49,6 @@ export const TokenCreationForm = () => {
     totalSupply: "1000000",
   });
   const [imagePreview, setImagePreview] = useState<string>("");
-
-  const [devnetConnection, setDevnetConnection] = useState<Connection | null>(
-    null
-  );
-
-  useEffect(() => {
-    const newConnection = new Connection(
-      "https://mainnet.helius-rpc.com/?api-key=3212d845-480e-4b86-af4f-c8150ebb819a"
-    );
-    setDevnetConnection(newConnection);
-  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
