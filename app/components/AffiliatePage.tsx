@@ -117,7 +117,7 @@ export const AffiliatePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-900 pb-12">
+    <div className="min-h-screen bg-neutral-900">
       <div className="max-w-4xl mx-auto px-4">
         {/* Hero Section */}
         <div className="text-center mb-16">
