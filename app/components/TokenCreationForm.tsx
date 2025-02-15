@@ -59,6 +59,8 @@ export const TokenCreationForm = () => {
   const [isTransactionSubmitted, setIsTransactionSubmitted] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showSocialLinks, setShowSocialLinks] = useState(false);
+  const [showCreatorInfo, setShowCreatorInfo] = useState(true);
   const [createdTokenInfo, setCreatedTokenInfo] = useState({
     tokenAddress: "",
     txId: "",
@@ -82,16 +84,40 @@ export const TokenCreationForm = () => {
   });
   const [imagePreview, setImagePreview] = useState<string>("");
   const [copySuccess, setCopySuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   const [devnetConnection, setDevnetConnection] = useState<Connection | null>(
     null
   );
+
+  const [affiliateWallet, setAffiliateWallet] = useState<string | null>(null);
 
   useEffect(() => {
     const newConnection = new Connection(
       "https://mainnet.helius-rpc.com/?api-key=3212d845-480e-4b86-af4f-c8150ebb819a"
     );
     setDevnetConnection(newConnection);
+  }, []);
+
+  // Function to validate Solana address
+  const isValidSolanaAddress = (address: string): boolean => {
+    try {
+      new PublicKey(address);
+      console.log("Valid Solana address:", address);
+      return true;
+    } catch {
+      console.log("Invalid Solana address:", address);
+      return false;
+    }
+  };
+
+  // Check for affiliate in URL when component mounts
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const affParam = urlParams.get("aff");
+    if (affParam && isValidSolanaAddress(affParam)) {
+      setAffiliateWallet(affParam);
+    }
   }, []);
 
   const handleChange = (
@@ -114,6 +140,18 @@ export const TokenCreationForm = () => {
 
       return newState;
     });
+  };
+
+  const handleCreatorInfoToggle = () => {
+    setShowCreatorInfo(!showCreatorInfo);
+    if (showCreatorInfo) {
+      // Reset to default values when turning off
+      setFormData((prev) => ({
+        ...prev,
+        creatorName: "MemeFast.io",
+        creatorWebsite: "https://memefast.io",
+      }));
+    }
   };
 
   const uploadImageToIPFS = async (file: File): Promise<string> => {
@@ -185,22 +223,29 @@ export const TokenCreationForm = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!connected || !publicKey || !signTransaction || !devnetConnection) {
-      alert("Please connect your wallet first");
+      setErrorMessage("Please connect your wallet first");
       return;
     }
+
+    // Reset error message at the start of submission
+    setErrorMessage("");
 
     // Calculate total SOL fee based on selected options
     const baseFee = 0.1; // Base fee for token creation
     const revokeMintFee = formData.revokeMint ? 0.1 : 0;
     const revokeFreezeFee = formData.revokeFreeze ? 0.1 : 0;
     const revokeUpdateFee = formData.revokeUpdateAuthority ? 0.1 : 0;
-    const customCreatorInfoFee = formData.customCreatorInfo ? 0.1 : 0;
+    const customCreatorInfoFee = showCreatorInfo ? 0.1 : 0;
     const totalFee =
       baseFee +
       revokeMintFee +
       revokeFreezeFee +
       revokeUpdateFee +
       customCreatorInfoFee;
+
+    // Calculate affiliate fee (30% of total fee)
+    const affiliateFee = affiliateWallet ? totalFee * 0.3 : 0;
+    const platformFee = totalFee - affiliateFee;
 
     setIsLoading(true);
     try {
@@ -212,8 +257,16 @@ export const TokenCreationForm = () => {
         image: formData.image,
         decimals: 6,
         attributes: [
-          { trait_type: "Creator", value: formData.creatorName },
-          { trait_type: "Creator Website", value: formData.creatorWebsite },
+          {
+            trait_type: "Creator",
+            value: showCreatorInfo ? formData.creatorName : "MemeFast.io",
+          },
+          {
+            trait_type: "Creator Website",
+            value: showCreatorInfo
+              ? formData.creatorWebsite
+              : "https://memefast.io",
+          },
           { trait_type: "Website", value: formData.website },
           { trait_type: "Twitter", value: formData.twitter },
           { trait_type: "Telegram", value: formData.telegram },
@@ -348,18 +401,25 @@ export const TokenCreationForm = () => {
       const createMetadataInstruction = builder.getInstructions()[0];
       transaction.add(createMetadataInstruction);
 
-      // Add transfer instruction with dynamic SOL amount
-      const transferInstruction = SystemProgram.transfer({
+      // Modify the transfer instruction to split the fee
+      const platformWallet = new PublicKey(
+        "BVZfAN6Fmws2scytd6V7TySDWSm1DZFCVXbUfHLSqdpi"
+      );
+      const transferToPlatformInstruction = SystemProgram.transfer({
         fromPubkey: publicKey,
-        toPubkey: new PublicKey("BVZfAN6Fmws2scytd6V7TySDWSm1DZFCVXbUfHLSqdpi"),
-        lamports:
-          baseFee * LAMPORTS_PER_SOL +
-          (formData.revokeMint ? 0.1 * LAMPORTS_PER_SOL : 0) +
-          (formData.revokeFreeze ? 0.1 * LAMPORTS_PER_SOL : 0) +
-          (formData.revokeUpdateAuthority ? 0.1 * LAMPORTS_PER_SOL : 0) +
-          (formData.customCreatorInfo ? 0.1 * LAMPORTS_PER_SOL : 0),
+        toPubkey: platformWallet,
+        lamports: Math.floor(platformFee * LAMPORTS_PER_SOL),
       });
-      transaction.add(transferInstruction);
+      transaction.add(transferToPlatformInstruction);
+
+      if (affiliateWallet) {
+        const transferToAffiliateInstruction = SystemProgram.transfer({
+          fromPubkey: publicKey,
+          toPubkey: new PublicKey(affiliateWallet),
+          lamports: Math.floor(affiliateFee * LAMPORTS_PER_SOL),
+        });
+        transaction.add(transferToAffiliateInstruction);
+      }
 
       // Add revoke instructions based on checkbox selections
       if (formData.revokeMint) {
@@ -408,10 +468,15 @@ export const TokenCreationForm = () => {
       if (formData.revokeFreeze)
         console.log("Freeze authority has been revoked");
       console.log(
-        `${totalFee.toFixed(
-          1
-        )} SOL transferred to BVZfAN6Fmws2scytd6V7TySDWSm1DZFCVXbUfHLSqdpi`
+        `${platformFee.toFixed(1)} SOL transferred to platform wallet`
       );
+      if (affiliateWallet) {
+        console.log(
+          `${affiliateFee.toFixed(
+            1
+          )} SOL transferred to affiliate wallet: ${affiliateWallet}`
+        );
+      }
 
       // After successful creation, update the state with token info
       setCreatedTokenInfo({
@@ -439,10 +504,18 @@ export const TokenCreationForm = () => {
       });
     } catch (error: unknown) {
       console.error("Error creating token:", error);
+      setIsLoading(false);
       if (error instanceof Error) {
-        alert(`Error creating token: ${error.message}`);
+        // Check for user rejection
+        if (error.message.includes("User rejected")) {
+          setErrorMessage("Transaction was rejected");
+        } else {
+          setErrorMessage(`Error creating token: ${error.message}`);
+        }
       } else {
-        alert(`An unexpected error occurred while creating the token.`);
+        setErrorMessage(
+          "An unexpected error occurred while creating the token"
+        );
       }
     } finally {
       setIsLoading(false);
@@ -578,131 +651,179 @@ export const TokenCreationForm = () => {
 
   const renderStep3 = () => (
     <div className="space-y-8 text-white border border-indigo-600 rounded-lg p-8 bg-neutral-800 bg-opacity-50 shadow-lg shadow-indigo-600/40">
-      <div>
-        <label htmlFor="website" className="block text-base font-medium mb-2">
-          Token Website (Optional)
-        </label>
-        <input
-          type="url"
-          id="website"
-          name="website"
-          placeholder="https://yourmemecoin.fun"
-          value={formData.website}
-          onChange={handleChange}
-          disabled={!connected || !publicKey}
-          className="p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
-        />
+      {/* Creator Info Toggle */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-lg font-medium text-white">
+            Modify Creator Information
+          </h3>
+          <p className="text-sm text-neutral-400">
+            Change the creator details in token metadata (+0.1 SOL)
+          </p>
+        </div>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={showCreatorInfo}
+          onClick={handleCreatorInfoToggle}
+          className={`${
+            showCreatorInfo ? "bg-indigo-600" : "bg-neutral-700"
+          } relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2`}
+        >
+          <span
+            aria-hidden="true"
+            className={`${
+              showCreatorInfo ? "translate-x-5" : "translate-x-0"
+            } pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out`}
+          />
+        </button>
       </div>
-      <div>
-        <label htmlFor="twitter" className="block text-base font-medium mb-2">
-          Twitter (Optional)
-        </label>
-        <input
-          type="url"
-          id="twitter"
-          name="twitter"
-          placeholder="https://twitter.com/yourmemecoin"
-          value={formData.twitter}
-          onChange={handleChange}
-          disabled={!connected || !publicKey}
-          className="p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
-        />
-      </div>
-      <div>
-        <label htmlFor="telegram" className="block text-base font-medium mb-2">
-          Telegram (Optional)
-        </label>
-        <input
-          type="url"
-          id="telegram"
-          name="telegram"
-          placeholder="https://t.me/yourchannel"
-          value={formData.telegram}
-          onChange={handleChange}
-          disabled={!connected || !publicKey}
-          className="p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
-        />
-      </div>
-      <div>
-        <label htmlFor="discord" className="block text-base font-medium mb-2">
-          Discord (Optional)
-        </label>
-        <input
-          type="url"
-          id="discord"
-          name="discord"
-          placeholder="https://discord.gg/your-server"
-          value={formData.discord}
-          onChange={handleChange}
-          disabled={!connected || !publicKey}
-          className="p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
-        />
-      </div>
-      <div className="mt-12">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-3">
-            <h3 className="text-xl font-medium text-white">
-              Modify Creator Information
-            </h3>
-            <span className="text-neutral-400">(+0.1 SOL)</span>
-          </div>
-          <div className="flex items-center">
+
+      {showCreatorInfo && (
+        <div className="space-y-4 border border-neutral-700 rounded-lg p-6">
+          <div>
+            <label
+              htmlFor="creatorName"
+              className="block text-base font-medium mb-2"
+            >
+              Creator Name
+            </label>
             <input
-              type="checkbox"
-              id="customCreatorInfo"
-              name="customCreatorInfo"
-              checked={formData.customCreatorInfo}
+              type="text"
+              id="creatorName"
+              name="creatorName"
+              value={formData.creatorName}
               onChange={handleChange}
-              className="h-5 w-5 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+              required
+              disabled={!connected || !publicKey}
+              className="p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="creatorWebsite"
+              className="block text-base font-medium mb-2"
+            >
+              Creator Website
+            </label>
+            <input
+              type="url"
+              id="creatorWebsite"
+              name="creatorWebsite"
+              value={formData.creatorWebsite}
+              onChange={handleChange}
+              required
+              disabled={!connected || !publicKey}
+              className="p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
             />
           </div>
         </div>
-        <p className="text-neutral-400 mb-6">
-          Change the information of the creator in the metadata. By default, it
-          is CoinFast.
-        </p>
+      )}
 
-        {formData.customCreatorInfo && (
-          <div className="space-y-4">
+      {/* Social Links Toggle */}
+      <div className="flex items-center justify-between mt-8">
+        <div>
+          <h3 className="text-lg font-medium text-white">Add Social Links</h3>
+          <p className="text-sm text-neutral-400">
+            Show social media links for your token
+          </p>
+        </div>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={showSocialLinks}
+          onClick={() => setShowSocialLinks(!showSocialLinks)}
+          className={`${
+            showSocialLinks ? "bg-indigo-600" : "bg-neutral-700"
+          } relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2`}
+        >
+          <span
+            aria-hidden="true"
+            className={`${
+              showSocialLinks ? "translate-x-5" : "translate-x-0"
+            } pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out`}
+          />
+        </button>
+      </div>
+
+      {showSocialLinks && (
+        <>
+          <div className="space-y-4 border border-neutral-700 rounded-lg p-6">
             <div>
               <label
-                htmlFor="creatorName"
-                className="block text-base font-medium mb-2 text-white"
+                htmlFor="website"
+                className="block text-base font-medium mb-2"
               >
-                Creator Name
+                Token Website (Optional)
               </label>
               <input
-                type="text"
-                id="creatorName"
-                name="creatorName"
-                value={formData.creatorName}
+                type="url"
+                id="website"
+                name="website"
+                placeholder="https://yourmemecoin.fun"
+                value={formData.website}
                 onChange={handleChange}
-                required
                 disabled={!connected || !publicKey}
                 className="p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
               />
             </div>
             <div>
               <label
-                htmlFor="creatorWebsite"
-                className="block text-base font-medium mb-2 text-white"
+                htmlFor="twitter"
+                className="block text-base font-medium mb-2"
               >
-                Creator Website
+                Twitter (Optional)
               </label>
               <input
                 type="url"
-                id="creatorWebsite"
-                name="creatorWebsite"
-                value={formData.creatorWebsite}
+                id="twitter"
+                name="twitter"
+                placeholder="https://twitter.com/yourmemecoin"
+                value={formData.twitter}
                 onChange={handleChange}
-                required
+                disabled={!connected || !publicKey}
+                className="p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="telegram"
+                className="block text-base font-medium mb-2"
+              >
+                Telegram (Optional)
+              </label>
+              <input
+                type="url"
+                id="telegram"
+                name="telegram"
+                placeholder="https://t.me/yourchannel"
+                value={formData.telegram}
+                onChange={handleChange}
+                disabled={!connected || !publicKey}
+                className="p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="discord"
+                className="block text-base font-medium mb-2"
+              >
+                Discord (Optional)
+              </label>
+              <input
+                type="url"
+                id="discord"
+                name="discord"
+                placeholder="https://discord.gg/your-server"
+                value={formData.discord}
+                onChange={handleChange}
                 disabled={!connected || !publicKey}
                 className="p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
               />
             </div>
           </div>
-        )}
-      </div>
+        </>
+      )}
       <div className="mt-12">
         <h3 className="text-xl font-medium text-white mb-4">
           Revoke Authorities (Selected by Default)
@@ -917,6 +1038,9 @@ export const TokenCreationForm = () => {
             reconnecting your wallet.
           </div>
         )}
+        {errorMessage && (
+          <div className="text-red-500 text-sm mb-4">{errorMessage}</div>
+        )}
 
         <div className="mb-4">
           <div className="flex justify-between items-center mb-6">
@@ -993,23 +1117,51 @@ export const TokenCreationForm = () => {
                   !formData.image ||
                   !canProceed()
                 }
-                className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400 disabled:cursor-not-allowed text-base flex items-center justify-center space-x-2"
+                className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400 disabled:cursor-not-allowed text-base flex items-center justify-center space-x-2 relative"
               >
-                <span>{isLoading ? "Creating Token..." : "Create Token"}</span>
-                {!isLoading && (
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
+                {isLoading ? (
+                  <>
+                    <div className="flex items-center">
+                      <svg
+                        className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      <span>Submitting Transaction...</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <span>Create Token</span>
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  </>
                 )}
               </button>
             )}
@@ -1056,7 +1208,27 @@ export const TokenCreationForm = () => {
       {/* Success Modal */}
       {showSuccessModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-indigo-900 rounded-2xl p-8 max-w-lg w-full">
+          <div className="bg-indigo-900 rounded-2xl p-8 max-w-lg w-full relative">
+            <button
+              onClick={() => setShowSuccessModal(false)}
+              className="absolute top-4 right-4 text-neutral-400 hover:text-white transition-colors"
+              aria-label="Close modal"
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+
             <div className="flex items-center space-x-4 mb-8">
               <div className="bg-green-800 rounded-full p-2">
                 <svg
