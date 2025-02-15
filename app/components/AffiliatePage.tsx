@@ -135,8 +135,8 @@ export const AffiliatePage = () => {
         {/* Main Content */}
         <div className="bg-neutral-800 rounded-xl p-8 shadow-lg border border-neutral-700">
           {!connected ? (
-            <div className="text-center py-8">
-              <p className="text-white mb-4">
+            <div className="flex items-center justify-center h-full text-center py-8">
+              <p className="text-white">
                 Please connect your wallet to become an affiliate
               </p>
             </div>
