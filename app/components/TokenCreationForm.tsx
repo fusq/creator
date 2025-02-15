@@ -902,7 +902,7 @@ export const TokenCreationForm = () => {
             required
             placeholder="Meme Coin"
             disabled={!connected || !publicKey}
-            className="p-2 sm:p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-sm sm:text-base"
+            className="p-2 sm:p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
           />
         </div>
         <div className="flex-1">
@@ -921,7 +921,7 @@ export const TokenCreationForm = () => {
             required
             placeholder="MEMC"
             disabled={!connected || !publicKey}
-            className="p-2 sm:p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-sm sm:text-base"
+            className="p-2 sm:p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
           />
         </div>
       </div>
@@ -990,7 +990,7 @@ export const TokenCreationForm = () => {
           required
           min="1"
           disabled={!connected || !publicKey}
-          className="p-2 sm:p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-sm sm:text-base"
+          className="p-2 sm:p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
         />
         <p className="mt-2 text-xs sm:text-sm text-neutral-400">
           1 billion by default (recommended), 6 decimals
@@ -1011,7 +1011,7 @@ export const TokenCreationForm = () => {
           required
           rows={6}
           disabled={!connected || !publicKey}
-          className="p-2 sm:p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-sm sm:text-base"
+          className="p-2 sm:p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
           placeholder="Describe your token's purpose and vision..."
         />
       </div>
