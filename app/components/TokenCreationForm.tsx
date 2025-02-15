@@ -912,7 +912,7 @@ export const TokenCreationForm = () => {
               />
             </svg>
             <p className="mt-1 text-sm text-neutral-400">
-              Click or drag to upload logo (500x500)
+              Click or drag to upload your token logo (500x500)
             </p>
           </div>
         )}
