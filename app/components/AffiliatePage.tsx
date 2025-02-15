@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { createClient } from "@supabase/supabase-js";
@@ -25,12 +27,7 @@ export const AffiliatePage = () => {
   const [copySuccess, setCopySuccess] = useState(false);
 
   // Function to generate a unique affiliate ID
-  const generateAffiliateId = () => {
-    return (
-      Math.random().toString(36).substring(2, 15) +
-      Math.random().toString(36).substring(2, 15)
-    );
-  };
+  const generateAffiliateId = () => Math.random().toString(36).slice(2, 10);
 
   // Function to check if wallet is already registered
   const checkExistingAffiliate = async (address: string) => {

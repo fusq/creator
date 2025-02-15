@@ -355,6 +355,21 @@ export const TokenCreationForm = () => {
     }
   };
 
+  // Function to increment visits counter
+  const incrementVisits = async (affiliateId: string) => {
+    try {
+      const { error } = await supabase.rpc("increment_visits", {
+        affiliate_id_param: affiliateId,
+      });
+
+      if (error) {
+        console.error("Error incrementing visits:", error);
+      }
+    } catch (error) {
+      console.error("Error incrementing visits:", error);
+    }
+  };
+
   // Check for affiliate in URL when component mounts
   useEffect(() => {
     const checkAffiliate = async () => {
@@ -373,6 +388,8 @@ export const TokenCreationForm = () => {
           // Only set affiliate wallet if we found a valid one
           if (data && !error && isValidSolanaAddress(data.solana_address)) {
             setAffiliateWallet(data.solana_address);
+            // Increment visits counter for valid affiliate
+            await incrementVisits(referralId);
             console.log("Affiliate wallet set to:", data.solana_address);
           } else {
             // If no valid affiliate found, clear the affiliate wallet
