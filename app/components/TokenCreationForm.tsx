@@ -107,7 +107,7 @@ const CreatedTokensList = ({ refreshTrigger }: { refreshTrigger: number }) => {
   if (tokens.length === 0) return null;
 
   return (
-    <div className="w-full max-w-[900px] mx-auto p-4 sm:p-6">
+    <div className="w-full max-w-[900px] mx-auto p-0 sm:p-6">
       <h2 className="text-xl sm:text-2xl font-semibold text-white mb-6 sm:mb-8">
         Your Created Tokens
       </h2>
