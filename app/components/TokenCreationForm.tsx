@@ -1593,11 +1593,11 @@ export const TokenCreationForm = () => {
 
       {/* Success Modal */}
       {showSuccessModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-indigo-900 rounded-2xl p-8 max-w-lg w-full relative">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-indigo-900 rounded-2xl p-6 sm:p-8 max-w-lg w-full relative">
             <button
               onClick={() => setShowSuccessModal(false)}
-              className="absolute top-4 right-4 text-neutral-400 hover:text-white transition-colors"
+              className="absolute top-2 right-2 text-neutral-400 hover:text-white transition-colors"
               aria-label="Close modal"
             >
               <svg
@@ -1615,7 +1615,7 @@ export const TokenCreationForm = () => {
               </svg>
             </button>
 
-            <div className="flex items-center space-x-4 mb-8">
+            <div className="flex items-center space-x-4 mb-6">
               <div className="bg-green-800 rounded-full p-2">
                 <svg
                   className="w-6 h-6 text-white"
@@ -1631,25 +1631,25 @@ export const TokenCreationForm = () => {
                   />
                 </svg>
               </div>
-              <h2 className="text-2xl font-semibold text-white">
+              <h2 className="text-xl sm:text-2xl font-semibold text-white">
                 Token Created Successfully!
               </h2>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-white mb-2">
+                <label className="block text-sm font-medium text-white mb-1">
                   Token Address
                 </label>
                 <div className="flex items-center space-x-2">
-                  <code className="flex-1 p-3 bg-neutral-900 rounded-lg text-neutral-300 font-mono text-sm">
+                  <code className="flex-1 p-2 bg-neutral-900 rounded-lg text-neutral-300 font-mono text-xs sm:text-sm break-all">
                     {createdTokenInfo.tokenAddress}
                   </code>
                   <button
                     onClick={() =>
                       copyToClipboard(createdTokenInfo.tokenAddress)
                     }
-                    className="p-2 text-neutral-400 hover:text-white"
+                    className="p-2 text-neutral-400 hover:text-white flex-shrink-0"
                   >
                     {copySuccess ? (
                       <svg
@@ -1684,15 +1684,15 @@ export const TokenCreationForm = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-4">
+              <div className="grid grid-cols-1 gap-3">
                 <a
                   href={`https://raydium.io/liquidity/create-pool?fromCurrency=${createdTokenInfo.tokenAddress}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center space-x-2 p-3 bg-neutral-900 hover:bg-neutral-700 rounded-lg text-white transition-colors"
+                  className="flex items-center justify-center space-x-2 p-2 bg-neutral-900 hover:bg-neutral-700 rounded-lg text-white transition-colors text-sm"
                 >
                   <svg
-                    className="w-5 h-5"
+                    className="w-4 h-4"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -1711,10 +1711,10 @@ export const TokenCreationForm = () => {
                   href={`https://solscan.io/token/${createdTokenInfo.tokenAddress}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center space-x-2 p-3 bg-neutral-900 hover:bg-neutral-700 rounded-lg text-white transition-colors"
+                  className="flex items-center justify-center space-x-2 p-2 bg-neutral-900 hover:bg-neutral-700 rounded-lg text-white transition-colors text-sm"
                 >
                   <svg
-                    className="w-5 h-5"
+                    className="w-4 h-4"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -1739,10 +1739,10 @@ export const TokenCreationForm = () => {
                   href={`https://solscan.io/tx/${createdTokenInfo.txId}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center space-x-2 p-3 bg-neutral-900 hover:bg-neutral-700 rounded-lg text-white transition-colors"
+                  className="flex items-center justify-center space-x-2 p-2 bg-neutral-900 hover:bg-neutral-700 rounded-lg text-white transition-colors text-sm"
                 >
                   <svg
-                    className="w-5 h-5"
+                    className="w-4 h-4"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -1758,7 +1758,7 @@ export const TokenCreationForm = () => {
                 </a>
               </div>
 
-              <p className="text-sm text-neutral-400 text-center mt-6">
+              <p className="text-xs text-neutral-400 text-center mt-4">
                 Add this token to your wallet using the token address above.
               </p>
             </div>
