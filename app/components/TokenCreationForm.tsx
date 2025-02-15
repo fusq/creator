@@ -60,7 +60,7 @@ export const TokenCreationForm = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showSocialLinks, setShowSocialLinks] = useState(false);
-  const [showCreatorInfo, setShowCreatorInfo] = useState(true);
+  const [showCreatorInfo, setShowCreatorInfo] = useState(false);
   const [createdTokenInfo, setCreatedTokenInfo] = useState({
     tokenAddress: "",
     txId: "",
