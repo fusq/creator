@@ -14,6 +14,7 @@ import {
 import { WalletBalance } from "./WalletBalance";
 import { TokenCreationForm } from "./TokenCreationForm";
 import { AffiliatePage } from "./AffiliatePage";
+import Image from "next/image";
 
 const WalletProvider: FC = () => {
   const [currentView, setCurrentView] = useState<"create" | "affiliate">(
@@ -31,7 +32,7 @@ const WalletProvider: FC = () => {
         <WalletModalProvider>
           <style jsx global>{`
             @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap");
-            @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap");
+            @import url("https://fonts.googleapis.com/css2?family=Lexend:wght@100;200;300;400;500;600;700;800;900&display=swap");
             .wallet-adapter-button {
               background-color: transparent;
               border: none;
@@ -90,8 +91,8 @@ const WalletProvider: FC = () => {
               width: 100%;
             }
 
-            .montserrat {
-              font-family: "Montserrat", "Roboto", "Helvetica Neue", Helvetica,
+            .Lexend {
+              font-family: "Lexend", "Roboto", "Helvetica Neue", Helvetica,
                 Arial, sans-serif;
             }
 
@@ -346,9 +347,20 @@ const WalletProvider: FC = () => {
             <header className="p-4 border-b border-neutral-800 relative">
               <div className="flex justify-between items-center max-w-7xl mx-auto">
                 {/* Website Name */}
-                <div className="text-2xl font-bold montserrat text-white">
-                  Meme
-                  <span className="text-indigo-400 font-medium">Fast.io</span>
+                <div className="flex items-center">
+                  <Image
+                    src="/memefast.png"
+                    alt="MemeFast Logo"
+                    className="mr-4"
+                    width={60}
+                    height={60}
+                  />
+                  <div className="text-2xl font-bold Lexend text-white">
+                    Meme
+                    <span className="text-indigo-400 font-medium">
+                      Fast.fun
+                    </span>
+                  </div>
                 </div>
 
                 {/* Wallet Section */}
@@ -399,7 +411,7 @@ const WalletProvider: FC = () => {
             <main className="flex flex-col items-center justify-center pt-16">
               {currentView === "create" ? (
                 <>
-                  <h1 className="text-4xl font-bold mb-2 text-white bg-indigo-600 px-4 py-2 rounded-lg">
+                  <h1 className="text-4xl font-bold mb-2 text-white bg-indigo-600 px-4 py-2 rounded-lg Lexend">
                     Create Your Own Token FAST ⚡
                   </h1>
                   <p className="text-lg text-neutral-400">
