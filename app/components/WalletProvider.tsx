@@ -345,67 +345,69 @@ const WalletProvider: FC = () => {
 
             {/* Header */}
             <header className="p-4 border-b border-neutral-800">
-              <div className="flex flex-col sm:flex-row justify-between items-center max-w-7xl mx-auto">
-                {/* Website Name */}
-                <div className="flex items-center mb-4 sm:mb-0">
-                  <Image
-                    src="/memefast.png"
-                    alt="MemeFast Logo"
-                    className="mr-2 sm:mr-4"
-                    width={40}
-                    height={40}
-                  />
-                  <div className="text-xl sm:text-2xl font-bold Lexend text-white">
-                    Meme
-                    <span className="text-indigo-400 font-medium">
-                      Fast.fun
-                    </span>
+              <div className="max-w-7xl mx-auto">
+                <div className="flex flex-col sm:flex-row justify-between items-center">
+                  {/* Website Name and Logo */}
+                  <div className="flex items-center mb-4 sm:mb-0">
+                    <Image
+                      src="/memefast.png"
+                      alt="MemeFast Logo"
+                      className="mr-2 sm:mr-4"
+                      width={40}
+                      height={40}
+                    />
+                    <div className="text-xl sm:text-2xl font-bold Lexend text-white">
+                      Meme
+                      <span className="text-indigo-400 font-medium">
+                        Fast.fun
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Navigation Menu - Centered on desktop */}
+                  <nav className="mb-4 sm:mb-0">
+                    <div className="flex space-x-2 sm:space-x-6">
+                      <button
+                        onClick={() => setCurrentView("create")}
+                        className={`px-2 sm:px-4 py-2 text-base font-medium rounded-md transition-colors ${
+                          currentView === "create"
+                            ? "text-indigo-400"
+                            : "text-neutral-400 hover:text-indigo-700"
+                        }`}
+                      >
+                        Create Token
+                      </button>
+                      <button
+                        onClick={() =>
+                          window.open(
+                            "https://raydium.io/liquidity/create-pool/",
+                            "_blank"
+                          )
+                        }
+                        className={`px-2 sm:px-4 py-2 text-base font-medium rounded-md transition-colors text-neutral-400 hover:text-indigo-700`}
+                      >
+                        Create Liquidity
+                      </button>
+                      <button
+                        onClick={() => setCurrentView("affiliate")}
+                        className={`px-2 sm:px-4 py-2 text-base font-medium rounded-md transition-colors hidden ${
+                          currentView === "affiliate"
+                            ? "text-indigo-400"
+                            : "text-neutral-400 hover:text-indigo-700"
+                        }`}
+                      >
+                        Become an Affiliate
+                      </button>
+                    </div>
+                  </nav>
+
+                  {/* Wallet Section */}
+                  <div className="flex items-center space-x-2 sm:space-x-4">
+                    <WalletBalance />
+                    <WalletMultiButton />
                   </div>
                 </div>
-
-                {/* Wallet Section */}
-                <div className="flex items-center space-x-2 sm:space-x-4">
-                  <WalletBalance />
-                  <WalletMultiButton />
-                </div>
               </div>
-
-              {/* Navigation Menu */}
-              <nav className="mt-4 sm:mt-0">
-                <div className="flex justify-center space-x-2 sm:space-x-6">
-                  <button
-                    onClick={() => setCurrentView("create")}
-                    className={`px-2 sm:px-4 py-2 text-sm sm:text-base font-medium rounded-md transition-colors ${
-                      currentView === "create"
-                        ? "text-indigo-400"
-                        : "text-neutral-400 hover:text-indigo-700"
-                    }`}
-                  >
-                    Create Token
-                  </button>
-                  <button
-                    onClick={() =>
-                      window.open(
-                        "https://raydium.io/liquidity/create-pool/",
-                        "_blank"
-                      )
-                    }
-                    className={`px-2 sm:px-4 py-2 text-sm sm:text-base font-medium rounded-md transition-colors text-neutral-400 hover:text-indigo-700`}
-                  >
-                    Create Liquidity
-                  </button>
-                  <button
-                    onClick={() => setCurrentView("affiliate")}
-                    className={`px-2 sm:px-4 py-2 text-sm sm:text-base font-medium rounded-md transition-colors hidden ${
-                      currentView === "affiliate"
-                        ? "text-indigo-400"
-                        : "text-neutral-400 hover:text-indigo-700"
-                    }`}
-                  >
-                    Become an Affiliate
-                  </button>
-                </div>
-              </nav>
             </header>
 
             <main className="flex flex-col items-center justify-center pt-8 sm:pt-16 px-4 sm:px-0">
