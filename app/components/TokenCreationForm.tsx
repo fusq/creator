@@ -1420,7 +1420,7 @@ export const TokenCreationForm = () => {
                     type="button"
                     onClick={nextStep}
                     disabled={!canProceed()}
-                    className="px-4 py-2 border border-transparent rounded-md shadow-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400 disabled:cursor-not-allowed text-base flex items-center space-x-2"
+                    className="px-4 py-2 border border-transparent rounded-md shadow-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400 disabled:cursor-not-allowed text-base flex items-center space-x-2"
                   >
                     <span>Next</span>
                     <svg
@@ -1478,7 +1478,7 @@ export const TokenCreationForm = () => {
                       </>
                     ) : (
                       <>
-                        <span>Create Token</span>
+                        <span className="font-bold">Create Token</span>
                         <svg
                           className="w-5 h-5"
                           fill="none"
