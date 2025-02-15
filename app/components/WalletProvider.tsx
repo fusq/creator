@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useMemo } from "react";
+import { FC, useMemo, useState } from "react";
 import GuideFaq from "./GuideFaq";
 import {
   ConnectionProvider,
@@ -13,7 +13,13 @@ import {
 } from "@solana/wallet-adapter-react-ui";
 import { WalletBalance } from "./WalletBalance";
 import { TokenCreationForm } from "./TokenCreationForm";
+import { AffiliatePage } from "./AffiliatePage";
+
 const WalletProvider: FC = () => {
+  const [currentView, setCurrentView] = useState<"create" | "affiliate">(
+    "create"
+  );
+
   // Use Helius RPC endpoint
   const endpoint =
     "https://mainnet.helius-rpc.com/?api-key=3212d845-480e-4b86-af4f-c8150ebb819a";
@@ -357,31 +363,57 @@ const WalletProvider: FC = () => {
               {/* Navigation Menu - Centered */}
               <nav className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
                 <div className="flex space-x-6">
-                  <button className="px-4 py-2 font-medium text-indigo-400 rounded-md hover:text-indigo-700 transition-colors">
+                  <button
+                    onClick={() => setCurrentView("create")}
+                    className={`px-4 py-2 font-medium rounded-md transition-colors ${
+                      currentView === "create"
+                        ? "text-indigo-400"
+                        : "text-neutral-400 hover:text-indigo-700"
+                    }`}
+                  >
                     Create Token
                   </button>
-                  <a
-                    href="https://raydium.io/liquidity/create-pool/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-4 py-2 text-neutral-400 font-medium hover:text-indigo-700 transition-colors"
+                  <button
+                    onClick={() =>
+                      window.open(
+                        "https://raydium.io/liquidity/create-pool/",
+                        "_blank"
+                      )
+                    }
+                    className={`px-4 py-2 font-medium rounded-md transition-colors text-neutral-400 hover:text-indigo-700`}
                   >
                     Create Liquidity
-                  </a>
+                  </button>
+                  <button
+                    onClick={() => setCurrentView("affiliate")}
+                    className={`px-4 py-2 font-medium rounded-md transition-colors ${
+                      currentView === "affiliate"
+                        ? "text-indigo-400"
+                        : "text-neutral-400 hover:text-indigo-700"
+                    }`}
+                  >
+                    Become an Affiliate
+                  </button>
                 </div>
               </nav>
             </header>
 
             <main className="flex flex-col items-center justify-center pt-16">
-              <h1 className="text-4xl font-bold mb-2 text-white bg-indigo-600 px-4 py-2 rounded-lg">
-                Create Your Own Token FAST ⚡
-              </h1>
-              <p className="text-lg text-neutral-400">
-                Launch your own token on Solana in seconds. No coding required.
-              </p>
-              <TokenCreationForm />
-
-              <GuideFaq />
+              {currentView === "create" ? (
+                <>
+                  <h1 className="text-4xl font-bold mb-2 text-white bg-indigo-600 px-4 py-2 rounded-lg">
+                    Create Your Own Token FAST ⚡
+                  </h1>
+                  <p className="text-lg text-neutral-400">
+                    Launch your own token on Solana in seconds. No coding
+                    required.
+                  </p>
+                  <TokenCreationForm />
+                  <GuideFaq />
+                </>
+              ) : (
+                <AffiliatePage />
+              )}
 
               {/* Footer */}
               <footer className="w-full bg-neutral-800 border-t border-neutral-700 py-12 mt-auto">
@@ -421,9 +453,12 @@ const WalletProvider: FC = () => {
                         Support on Telegram @coinbuilderio
                       </a>
                       <span>|</span>
-                      <a href="#" className="hover:text-neutral-300">
+                      <button
+                        onClick={() => setCurrentView("affiliate")}
+                        className="hover:text-neutral-300"
+                      >
                         Become an affiliate for CoinBuilder.io
-                      </a>
+                      </button>
                     </div>
                   </div>
                 </div>

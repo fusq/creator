@@ -27,6 +27,7 @@ import {
 import { Buffer } from "buffer";
 import axios from "axios";
 import { useDropzone } from "react-dropzone";
+import { createClient } from "@supabase/supabase-js";
 
 interface TokenMetadata {
   name: string;
@@ -61,6 +62,12 @@ interface TokenInfo {
   creationDate: string;
   image: string;
 }
+
+// Initialize Supabase client
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 const CreatedTokensList = ({ refreshTrigger }: { refreshTrigger: number }) => {
   const [tokens, setTokens] = useState<TokenInfo[]>([]);
@@ -350,11 +357,37 @@ export const TokenCreationForm = () => {
 
   // Check for affiliate in URL when component mounts
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const affParam = urlParams.get("aff");
-    if (affParam && isValidSolanaAddress(affParam)) {
-      setAffiliateWallet(affParam);
-    }
+    const checkAffiliate = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const referralId = urlParams.get("r");
+
+      if (referralId) {
+        try {
+          // Look up the affiliate's wallet address from their affiliate_id
+          const { data, error } = await supabase
+            .from("affiliates")
+            .select("solana_address")
+            .eq("affiliate_id", referralId)
+            .single();
+
+          // Only set affiliate wallet if we found a valid one
+          if (data && !error && isValidSolanaAddress(data.solana_address)) {
+            setAffiliateWallet(data.solana_address);
+            console.log("Affiliate wallet set to:", data.solana_address);
+          } else {
+            // If no valid affiliate found, clear the affiliate wallet
+            setAffiliateWallet(null);
+            console.log("No valid affiliate found for ID:", referralId);
+          }
+        } catch {
+          // In case of any error, just proceed without an affiliate
+          console.log("No valid affiliate found for ID:", referralId);
+          setAffiliateWallet(null);
+        }
+      }
+    };
+
+    checkAffiliate();
   }, []);
 
   const handleChange = (
@@ -480,8 +513,8 @@ export const TokenCreationForm = () => {
       revokeUpdateFee +
       customCreatorInfoFee;
 
-    // Calculate affiliate fee (30% of total fee)
-    const affiliateFee = affiliateWallet ? totalFee * 0.3 : 0;
+    // Calculate affiliate fee (50% of total fee)
+    const affiliateFee = affiliateWallet ? totalFee * 0.5 : 0;
     const platformFee = totalFee - affiliateFee;
 
     setIsLoading(true);
