@@ -358,12 +358,18 @@ export const TokenCreationForm = () => {
   // Function to increment visits counter
   const incrementVisits = async (affiliateId: string) => {
     try {
-      const { error } = await supabase.rpc("increment_visits", {
-        affiliate_id_param: affiliateId,
-      });
+      const response = await fetch(
+        `/api/increment-visits?affiliateId=${affiliateId}`,
+        {
+          method: "POST",
+        }
+      );
 
-      if (error) {
-        console.error("Error incrementing visits:", error);
+      if (!response.ok) {
+        console.error(
+          "Error incrementing visits: Server responded with",
+          response.status
+        );
       }
     } catch (error) {
       console.error("Error incrementing visits:", error);
