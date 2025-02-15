@@ -411,7 +411,7 @@ const WalletProvider: FC = () => {
                   </p>
                   <div className="text-sm text-neutral-500 flex flex-wrap items-center justify-between">
                     <span>© 2025 CoinBuilder.io | All Rights Reserved</span>
-                    <div className="flex items-center space-x-4">
+                    <div className="items-center space-x-4 hidden">
                       <a
                         href="https://t.me/coinbuilderio"
                         target="_blank"
