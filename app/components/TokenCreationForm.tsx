@@ -355,11 +355,38 @@ export const TokenCreationForm = () => {
     }
   };
 
-  // Check for affiliate in URL when component mounts
+  // Function to store referral ID in localStorage
+  const storeReferralId = (referralId: string) => {
+    const expirationDate = new Date();
+    expirationDate.setDate(expirationDate.getDate() + 30);
+    localStorage.setItem(
+      "referralId",
+      JSON.stringify({
+        id: referralId,
+        expiration: expirationDate.getTime(),
+      })
+    );
+  };
+
+  // Function to get stored referral ID from localStorage
+  const getStoredReferralId = (): string | null => {
+    const storedData = localStorage.getItem("referralId");
+    if (storedData) {
+      const { id, expiration } = JSON.parse(storedData);
+      if (new Date().getTime() < expiration) {
+        return id;
+      } else {
+        localStorage.removeItem("referralId");
+      }
+    }
+    return null;
+  };
+
+  // Check for affiliate in URL or localStorage when component mounts
   useEffect(() => {
     const checkAffiliate = async () => {
       const urlParams = new URLSearchParams(window.location.search);
-      const referralId = urlParams.get("r");
+      const referralId = urlParams.get("r") || getStoredReferralId();
 
       if (referralId) {
         try {
@@ -373,6 +400,7 @@ export const TokenCreationForm = () => {
           // Only set affiliate wallet if we found a valid one
           if (data && !error && isValidSolanaAddress(data.solana_address)) {
             setAffiliateWallet(data.solana_address);
+            storeReferralId(referralId);
             console.log("Affiliate wallet set to:", data.solana_address);
           } else {
             // If no valid affiliate found, clear the affiliate wallet

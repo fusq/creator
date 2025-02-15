@@ -145,7 +145,7 @@ export const AffiliatePage = () => {
               <button
                 onClick={registerAffiliate}
                 disabled={isLoading}
-                className="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:bg-neutral-600 disabled:cursor-not-allowed"
+                className="bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors disabled:bg-neutral-600 disabled:cursor-not-allowed"
               >
                 {isLoading ? "Processing..." : "Get Affiliate Link"}
               </button>
@@ -158,7 +158,7 @@ export const AffiliatePage = () => {
                   Your Affiliate Link
                 </h2>
                 <div className="flex items-center space-x-2">
-                  <code className="flex-1 p-4 bg-neutral-900 rounded-lg text-neutral-300 font-mono text-sm break-all">
+                  <code className="flex-1 p-4 bg-neutral-900 border border-indigo-600 rounded-lg text-neutral-300 font-mono text-sm break-all">
                     {getAffiliateLink()}
                   </code>
                   <button
@@ -234,6 +234,58 @@ export const AffiliatePage = () => {
               </div>
             </div>
           )}
+        </div>
+
+        {/* FAQ Section */}
+        <div className="mt-16 mb-16">
+          <h2 className="text-3xl font-bold text-white mb-8">
+            Frequently Asked Questions
+          </h2>
+          <div className="space-y-8">
+            <div>
+              <h3 className="text-xl font-semibold text-white mb-4">
+                How does the Affiliate Program work?
+              </h3>
+              <ol className="list-decimal list-inside text-neutral-400 space-y-2">
+                <li>Connect your wallet to receive rewards.</li>
+                <li>
+                  Click &quot;Get Affiliate Link&quot; to obtain your unique
+                  affiliate link.
+                </li>
+                <li>
+                  Share your referral link on Twitter, YouTube, Discord, and
+                  other social networks.
+                </li>
+                <li>
+                  When a user clicks your link, your referral code is stored in
+                  their browser. You&apos;ll receive rewards for every token
+                  they create.
+                </li>
+              </ol>
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold text-white mb-4">
+                What are the reward amounts?
+              </h3>
+              <p className="text-neutral-400">
+                The reward for each created token is 50% of the fee. For
+                example, if your referral creates a token with a 0.5 SOL fee,
+                0.25 SOL will automatically be sent to your wallet upon token
+                creation.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold text-white mb-4">
+                How long does my referral link remain active?
+              </h3>
+              <p className="text-neutral-400">
+                Your referral code is stored in the user&apos;s browser for 30
+                days. This means you&apos;ll still receive your commission if
+                the user returns to create a token within that period, even if
+                they don&apos;t use your link directly.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
