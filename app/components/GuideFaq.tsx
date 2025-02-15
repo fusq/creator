@@ -1,6 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 
 const GuideFaq: React.FC = () => {
+  // Add state for managing open/closed states of FAQ items
+  const [openItems, setOpenItems] = useState<number[]>([]);
+
+  // Toggle function for FAQ items
+  const toggleItem = (index: number) => {
+    setOpenItems((prev) =>
+      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
+    );
+  };
+
   return (
     <>
       {/* How to use guide */}
@@ -44,72 +54,69 @@ const GuideFaq: React.FC = () => {
           Frequently Asked Questions
         </h2>
 
-        <div className="space-y-8">
-          <div>
-            <h3 className="text-lg font-medium text-white mb-2">
-              What is Solana, and why should I launch my token on it?
-            </h3>
-            <p className="text-neutral-400">
-              Solana is a high-performance blockchain platform known for its
-              fast transactions, low fees, and scalability. It&apos;s an
-              excellent choice for launching tokens due to its growing
-              ecosystem, strong developer community, and widespread adoption in
-              the crypto space.
-            </p>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-medium text-white mb-2">
-              How can I create a token on the Solana blockchain?
-            </h3>
-            <p className="text-neutral-400">
-              Creating a token on Solana is straightforward with our platform.
-              Simply connect your wallet, fill in your token details (name,
-              symbol, supply, etc.), customize settings if needed, and submit.
-              Our tool handles all the technical aspects of token creation for
-              you.
-            </p>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-medium text-white mb-2">
-              What are the steps to deploy my own token on Solana?
-            </h3>
-            <p className="text-neutral-400">
-              The process involves: 1) Connecting your Solana wallet, 2)
-              Providing token details like name and symbol, 3) Setting the
-              supply and decimals, 4) Uploading token image and metadata, 5)
-              Configuring optional settings like freeze authority, and 6)
-              Confirming the transaction. Our platform guides you through each
-              step.
-            </p>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-medium text-white mb-2">
-              How can I manage token authorities on Solana?
-            </h3>
-            <p className="text-neutral-400">
-              Token authorities on Solana can be managed through our platform.
-              You can set and revoke different authorities like freeze, mint,
-              and update authority during token creation. These settings
-              determine who can perform certain actions with your token after
-              deployment.
-            </p>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-medium text-white mb-2">
-              What platforms can assist with launching a token on Solana?
-            </h3>
-            <p className="text-neutral-400">
-              There are several platforms available, including MemeFast (our
-              platform), which provides a user-friendly interface for token
-              creation. Other options include Solana&apos;s CLI tools and
-              various development frameworks, but our platform offers the most
-              straightforward solution for non-technical users.
-            </p>
-          </div>
+        <div className="space-y-4">
+          {[
+            {
+              question:
+                "What is Solana, and why should I launch my token on it?",
+              answer:
+                "Solana is a high-performance blockchain platform known for its fast transactions, low fees, and scalability. It's an excellent choice for launching tokens due to its growing ecosystem, strong developer community, and widespread adoption in the crypto space.",
+            },
+            {
+              question: "How can I create a token on the Solana blockchain?",
+              answer:
+                "Creating a token on Solana is straightforward with our platform. Simply connect your wallet, fill in your token details (name, symbol, supply, etc.), customize settings if needed, and submit. Our tool handles all the technical aspects of token creation for you.",
+            },
+            {
+              question: "What are the steps to deploy my own token on Solana?",
+              answer:
+                "The process involves: 1) Connecting your Solana wallet, 2) Providing token details like name and symbol, 3) Setting the supply and decimals, 4) Uploading token image and metadata, 5) Configuring optional settings like freeze authority, and 6) Confirming the transaction. Our platform guides you through each step.",
+            },
+            {
+              question: "How can I manage token authorities on Solana?",
+              answer:
+                "Token authorities on Solana can be managed through our platform. You can set and revoke different authorities like freeze, mint, and update authority during token creation. These settings determine who can perform certain actions with your token after deployment.",
+            },
+            {
+              question:
+                "What platforms can assist with launching a token on Solana?",
+              answer:
+                "There are several platforms available, including CoinBuilder.io (our platform), which provides a user-friendly interface for token creation. Other options include Solana's CLI tools and various development frameworks, but our platform offers the most straightforward solution for non-technical users.",
+            },
+          ].map((faq, index) => (
+            <div key={index} className="border border-neutral-700 rounded-lg">
+              <button
+                onClick={() => toggleItem(index)}
+                className="w-full px-6 py-4 flex justify-between items-center text-left"
+              >
+                <h3 className="text-lg font-medium text-white">
+                  {faq.question}
+                </h3>
+                <svg
+                  className={`w-6 h-6 transform transition-transform ${
+                    openItems.includes(index) ? "rotate-180" : ""
+                  }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                    className="text-white"
+                  />
+                </svg>
+              </button>
+              {openItems.includes(index) && (
+                <div className="px-6 pb-4">
+                  <p className="text-neutral-400">{faq.answer}</p>
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       </div>
     </>

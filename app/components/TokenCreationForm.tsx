@@ -52,6 +52,241 @@ interface TokenMetadata {
   external_url: string;
 }
 
+interface TokenInfo {
+  tokenAddress: string;
+  txId: string;
+  name: string;
+  symbol: string;
+  totalSupply: string;
+  creationDate: string;
+  image: string;
+}
+
+const CreatedTokensList = ({ refreshTrigger }: { refreshTrigger: number }) => {
+  const [tokens, setTokens] = useState<TokenInfo[]>([]);
+  const [copySuccess, setCopySuccess] = useState<string | null>(null);
+
+  useEffect(() => {
+    const storedTokens = JSON.parse(
+      localStorage.getItem("createdTokens") || "[]"
+    );
+    // Sort tokens by creation date in descending order
+    const sortedTokens = storedTokens.sort(
+      (a: TokenInfo, b: TokenInfo) =>
+        new Date(b.creationDate).getTime() - new Date(a.creationDate).getTime()
+    );
+    setTokens(sortedTokens);
+  }, [refreshTrigger]);
+
+  const copyToClipboard = async (text: string, tokenAddress: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopySuccess(tokenAddress);
+      setTimeout(() => setCopySuccess(null), 1000);
+    } catch (err) {
+      console.error("Failed to copy text: ", err);
+    }
+  };
+
+  const handleDeleteToken = (tokenAddress: string) => {
+    const updatedTokens = tokens.filter(
+      (token) => token.tokenAddress !== tokenAddress
+    );
+    localStorage.setItem("createdTokens", JSON.stringify(updatedTokens));
+    setTokens(updatedTokens);
+  };
+
+  if (tokens.length === 0) return null;
+
+  return (
+    <div className="w-[900px] mx-auto p-6">
+      <h2 className="text-2xl font-semibold text-white mb-8">
+        Your Created Tokens
+      </h2>
+      <div className="space-y-6">
+        {tokens.map((token, index) => (
+          <div
+            key={index}
+            className="bg-neutral-800 rounded-lg p-6 border border-neutral-700"
+          >
+            <div className="flex justify-between items-start mb-4">
+              <div className="flex items-start space-x-4">
+                {token.image && (
+                  <div className="flex-shrink-0">
+                    <Image
+                      src={token.image}
+                      alt={token.name}
+                      width={48}
+                      height={48}
+                      className="rounded-full"
+                    />
+                  </div>
+                )}
+                <div>
+                  <h3 className="text-xl font-medium text-white">
+                    {token.name} ({token.symbol})
+                  </h3>
+                  <p className="text-neutral-400 text-sm mt-1">
+                    Created on{" "}
+                    {new Date(token.creationDate).toLocaleString("en-US", {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: false,
+                    })}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-4">
+                <span className="text-neutral-400 text-sm">
+                  Total Supply: {Number(token.totalSupply).toLocaleString()}
+                </span>
+                <button
+                  onClick={() => handleDeleteToken(token.tokenAddress)}
+                  className="p-2 text-red-400 hover:text-red-300 transition-colors"
+                  title="Delete token"
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2 mb-6">
+              <code className="flex-1 p-3 bg-neutral-900 rounded-lg text-neutral-300 font-mono text-sm">
+                {token.tokenAddress}
+              </code>
+              <button
+                onClick={() =>
+                  copyToClipboard(token.tokenAddress, token.tokenAddress)
+                }
+                className="p-2 text-neutral-400 hover:text-white"
+              >
+                {copySuccess === token.tokenAddress ? (
+                  <svg
+                    className="w-5 h-5 text-green-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"
+                    />
+                  </svg>
+                )}
+              </button>
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              <a
+                href={`https://raydium.io/liquidity/create-pool?fromCurrency=${token.tokenAddress}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center space-x-2 p-3 bg-neutral-900 hover:bg-neutral-700 rounded-lg text-white transition-colors"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                  />
+                </svg>
+                <span>Create Liquidity Pool</span>
+              </a>
+
+              <a
+                href={`https://solscan.io/token/${token.tokenAddress}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center space-x-2 p-3 bg-neutral-900 hover:bg-neutral-700 rounded-lg text-white transition-colors"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                  />
+                </svg>
+                <span>View on Explorer</span>
+              </a>
+
+              <a
+                href={`https://solscan.io/tx/${token.txId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center space-x-2 p-3 bg-neutral-900 hover:bg-neutral-700 rounded-lg text-white transition-colors"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                  />
+                </svg>
+                <span>View Transaction</span>
+              </a>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 export const TokenCreationForm = () => {
   const { publicKey, signTransaction, connected } = useWallet();
   const [isLoading, setIsLoading] = useState(false);
@@ -71,8 +306,8 @@ export const TokenCreationForm = () => {
     image: "",
     symbol: "",
     totalSupply: "1000000000",
-    creatorName: "MemeFast.io",
-    creatorWebsite: "https://memefast.io",
+    creatorName: "CoinBuilder.io",
+    creatorWebsite: "https://coinbuilder.io",
     website: "",
     twitter: "",
     telegram: "",
@@ -91,6 +326,8 @@ export const TokenCreationForm = () => {
   );
 
   const [affiliateWallet, setAffiliateWallet] = useState<string | null>(null);
+
+  const [refreshTokenList, setRefreshTokenList] = useState(0);
 
   useEffect(() => {
     const newConnection = new Connection(
@@ -148,8 +385,8 @@ export const TokenCreationForm = () => {
       // Reset to default values when turning off
       setFormData((prev) => ({
         ...prev,
-        creatorName: "MemeFast.io",
-        creatorWebsite: "https://memefast.io",
+        creatorName: "CoinBuilder.io",
+        creatorWebsite: "https://coinbuilder.io",
       }));
     }
   };
@@ -259,13 +496,13 @@ export const TokenCreationForm = () => {
         attributes: [
           {
             trait_type: "Creator",
-            value: showCreatorInfo ? formData.creatorName : "MemeFast.io",
+            value: showCreatorInfo ? formData.creatorName : "CoinBuilder.io",
           },
           {
             trait_type: "Creator Website",
             value: showCreatorInfo
               ? formData.creatorWebsite
-              : "https://memefast.io",
+              : "https://coinbuilder.io",
           },
           { trait_type: "Website", value: formData.website },
           { trait_type: "Twitter", value: formData.twitter },
@@ -479,29 +716,35 @@ export const TokenCreationForm = () => {
       }
 
       // After successful creation, update the state with token info
-      setCreatedTokenInfo({
+      const tokenInfo = {
         tokenAddress: mintKeypair.publicKey.toString(),
         txId: txid,
-      });
-      setShowSuccessModal(true);
+        name: formData.name,
+        symbol: formData.symbol,
+        totalSupply: formData.totalSupply,
+        creationDate: new Date().toISOString(),
+        image: formData.image,
+      };
 
-      setFormData({
-        name: "",
-        description: "",
-        image: "",
-        symbol: "",
-        totalSupply: "1000000000",
-        creatorName: "Creator Name",
-        creatorWebsite: "https://creatorwebsite.com",
-        website: "",
-        twitter: "",
-        telegram: "",
-        discord: "",
-        revokeMint: true,
-        revokeFreeze: true,
-        revokeUpdateAuthority: true,
-        customCreatorInfo: true,
-      });
+      setCreatedTokenInfo(tokenInfo);
+
+      // Store token info in localStorage
+      const existingTokens = JSON.parse(
+        localStorage.getItem("createdTokens") || "[]"
+      );
+      existingTokens.unshift(tokenInfo);
+      localStorage.setItem("createdTokens", JSON.stringify(existingTokens));
+
+      setShowSuccessModal(true);
+      setRefreshTokenList((prev) => prev + 1);
+
+      // Reset only necessary state variables
+      setIsLoading(false);
+      setIsTransactionSubmitted(false);
+      setErrorMessage("");
+
+      // Keep the form data as is, just reset the currentStep to 3
+      setCurrentStep(3);
     } catch (error: unknown) {
       console.error("Error creating token:", error);
       setIsLoading(false);
@@ -852,7 +1095,7 @@ export const TokenCreationForm = () => {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth="2"
-                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2zm10-10V7a4 4 0 00-8 0v4h8z"
                   />
                 </svg>
               </div>
@@ -1379,6 +1622,9 @@ export const TokenCreationForm = () => {
           </div>
         </div>
       )}
+
+      {/* Modify the CreatedTokensList component call */}
+      <CreatedTokensList refreshTrigger={refreshTokenList} />
     </>
   );
 };

@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MemeFast | Create Solana Tokens in Seconds",
+  title: "CoinBuilder.io | Create Solana Tokens in Seconds",
   description:
-    "MemeFast | Create Solana Tokens in Seconds. No coding required. Launch tokens, manage authorities, and set up liquidity pools easily.",
+    "CoinBuilder.io | Create Solana Tokens in Seconds. No coding required. Launch tokens, manage authorities, and set up liquidity pools easily.",
 };
 
 export default function RootLayout({
