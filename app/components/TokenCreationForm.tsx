@@ -28,6 +28,7 @@ import { Buffer } from "buffer";
 import axios from "axios";
 import { useDropzone } from "react-dropzone";
 import { createClient } from "@supabase/supabase-js";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
 interface TokenMetadata {
   name: string;
@@ -1305,6 +1306,19 @@ export const TokenCreationForm = () => {
   );
 
   const renderStepContent = () => {
+    if (!connected) {
+      return (
+        <div className="text-center p-8 bg-neutral-800 rounded-lg border border-neutral-700">
+          <p className="text-xl text-white mb-4">
+            Please connect your wallet to create a token
+          </p>
+          <WalletMultiButton className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">
+            Connect Wallet
+          </WalletMultiButton>
+        </div>
+      );
+    }
+
     switch (currentStep) {
       case 1:
         return renderStep1();
@@ -1344,127 +1358,45 @@ export const TokenCreationForm = () => {
         onSubmit={handleSubmit}
         className="space-y-8 w-[900px] mx-auto mt-8 p-6"
       >
-        {!connected && (
-          <div className="text-center p-4 bg-yellow-100 text-yellow-700 rounded-md mb-4">
-            Please connect your wallet to create a token
-          </div>
-        )}
-        {connected && !publicKey && (
-          <div className="text-center p-4 bg-red-100 text-red-700 rounded-md mb-4">
-            Wallet connected, but public key is not available. Please try
-            reconnecting your wallet.
-          </div>
-        )}
         {errorMessage && (
           <div className="text-red-500 text-sm mb-4">{errorMessage}</div>
         )}
 
-        <div className="mb-4">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold text-white">
-              Step {currentStep} of 3
-            </h2>
+        {!connected ? (
+          <div className="text-center p-8 bg-neutral-800 rounded-lg border border-neutral-700">
+            <p className="text-xl text-white mb-4">
+              Please connect your wallet to create a token
+            </p>
+            <WalletMultiButton className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">
+              Connect Wallet
+            </WalletMultiButton>
           </div>
-          <div className="h-2 bg-gray-200 rounded-full">
-            <div
-              className="h-2 bg-indigo-600 rounded-full transition-all duration-300"
-              style={{ width: `${(currentStep / 3) * 100}%` }}
-            ></div>
-          </div>
-        </div>
+        ) : (
+          <>
+            <div className="mb-4">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-semibold text-white">
+                  Step {currentStep} of 3
+                </h2>
+              </div>
+              <div className="h-2 bg-gray-200 rounded-full">
+                <div
+                  className="h-2 bg-indigo-600 rounded-full transition-all duration-300"
+                  style={{ width: `${(currentStep / 3) * 100}%` }}
+                ></div>
+              </div>
+            </div>
 
-        {renderStepContent()}
+            {renderStepContent()}
 
-        <div className="flex justify-between mt-8">
-          <div>
-            {currentStep > 1 && (
-              <button
-                type="button"
-                onClick={prevStep}
-                className="px-4 py-2 border border-neutral-300 rounded-md shadow-sm font-medium text-neutral-300 hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 text-base flex items-center space-x-2"
-              >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M15 19l-7-7 7-7"
-                  />
-                </svg>
-                <span>Back</span>
-              </button>
-            )}
-          </div>
-          <div>
-            {currentStep < 3 && (
-              <button
-                type="button"
-                onClick={nextStep}
-                disabled={!canProceed()}
-                className="px-4 py-2 border border-transparent rounded-md shadow-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400 disabled:cursor-not-allowed text-base flex items-center space-x-2"
-              >
-                <span>Next</span>
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </button>
-            )}
-            {currentStep === 3 && (
-              <button
-                type="submit"
-                disabled={
-                  !connected ||
-                  !publicKey ||
-                  isLoading ||
-                  !formData.image ||
-                  !canProceed()
-                }
-                className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400 disabled:cursor-not-allowed text-base flex items-center justify-center space-x-2 relative"
-              >
-                {isLoading ? (
-                  <>
-                    <div className="flex items-center">
-                      <svg
-                        className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        ></circle>
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        ></path>
-                      </svg>
-                      <span>Submitting Transaction...</span>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <span>Create Token</span>
+            <div className="flex justify-between mt-8">
+              <div>
+                {currentStep > 1 && (
+                  <button
+                    type="button"
+                    onClick={prevStep}
+                    className="px-4 py-2 border border-neutral-300 rounded-md shadow-sm font-medium text-neutral-300 hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 text-base flex items-center space-x-2"
+                  >
                     <svg
                       className="w-5 h-5"
                       fill="none"
@@ -1475,15 +1407,99 @@ export const TokenCreationForm = () => {
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth="2"
-                        d="M5 13l4 4L19 7"
+                        d="M15 19l-7-7 7-7"
                       />
                     </svg>
-                  </>
+                    <span>Back</span>
+                  </button>
                 )}
-              </button>
-            )}
-          </div>
-        </div>
+              </div>
+              <div>
+                {currentStep < 3 && (
+                  <button
+                    type="button"
+                    onClick={nextStep}
+                    disabled={!canProceed()}
+                    className="px-4 py-2 border border-transparent rounded-md shadow-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400 disabled:cursor-not-allowed text-base flex items-center space-x-2"
+                  >
+                    <span>Next</span>
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </button>
+                )}
+                {currentStep === 3 && (
+                  <button
+                    type="submit"
+                    disabled={
+                      !connected ||
+                      !publicKey ||
+                      isLoading ||
+                      !formData.image ||
+                      !canProceed()
+                    }
+                    className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400 disabled:cursor-not-allowed text-base flex items-center justify-center space-x-2 relative"
+                  >
+                    {isLoading ? (
+                      <>
+                        <div className="flex items-center">
+                          <svg
+                            className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
+                          </svg>
+                          <span>Submitting Transaction...</span>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <span>Create Token</span>
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
+            </div>
+          </>
+        )}
       </form>
 
       {/* Loading Overlay - Only show after transaction is submitted */}

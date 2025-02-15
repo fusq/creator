@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { createClient } from "@supabase/supabase-js";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -136,9 +137,9 @@ export const AffiliatePage = () => {
         <div className="bg-neutral-800 rounded-xl p-8 shadow-lg border border-neutral-700">
           {!connected ? (
             <div className="flex items-center justify-center h-full text-center py-8">
-              <p className="text-white">
-                Please connect your wallet to become an affiliate
-              </p>
+              <WalletMultiButton className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">
+                Connect Wallet to Become an Affiliate
+              </WalletMultiButton>
             </div>
           ) : !affiliateData ? (
             <div className="text-center py-8">
