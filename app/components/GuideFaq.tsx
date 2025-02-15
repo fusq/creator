@@ -14,14 +14,16 @@ const GuideFaq: React.FC = () => {
   return (
     <>
       {/* How to use guide */}
-      <div className="w-[862px] bg-neutral-800 rounded-2xl p-12 mb-16 mt-8 border border-neutral-700">
-        <h2 className="text-2xl font-semibold text-white mb-8">
+      <div className="w-full max-w-[862px] bg-neutral-800 rounded-2xl p-4 sm:p-8 md:p-12 mb-8 sm:mb-16 mt-8 border border-neutral-700">
+        <h2 className="text-xl sm:text-2xl font-semibold text-white mb-4 sm:mb-8">
           How to use Solana Token Creator
         </h2>
 
-        <h3 className="text-lg text-white mb-6">Follow these simple steps:</h3>
+        <h3 className="text-base sm:text-lg text-white mb-4 sm:mb-6">
+          Follow these simple steps:
+        </h3>
 
-        <ol className="list-decimal list-inside space-y-4 text-lg text-white ml-4">
+        <ol className="list-decimal list-inside space-y-2 sm:space-y-4 text-base sm:text-lg text-white ml-2 sm:ml-4">
           <li>Connect your Solana wallet.</li>
           <li>Write the name you want for your Token.</li>
           <li>Indicate the symbol (max 8 characters).</li>
@@ -34,7 +36,7 @@ const GuideFaq: React.FC = () => {
           </li>
         </ol>
 
-        <div className="mt-8 space-y-4 text-base">
+        <div className="mt-4 sm:mt-8 space-y-2 sm:space-y-4 text-sm sm:text-base">
           <p className="text-white">
             The cost of creating the Token is{" "}
             <span className="text-[#7dd3fc]">0.1 SOL</span>, which includes all
@@ -49,12 +51,12 @@ const GuideFaq: React.FC = () => {
       </div>
 
       {/* FAQ Section */}
-      <div className="w-[862px] bg-neutral-800 rounded-2xl p-12 mb-16 border border-neutral-700">
-        <h2 className="text-2xl font-semibold text-white mb-8">
+      <div className="w-full max-w-[862px] bg-neutral-800 rounded-2xl p-4 sm:p-8 md:p-12 mb-8 sm:mb-16 border border-neutral-700">
+        <h2 className="text-xl sm:text-2xl font-semibold text-white mb-4 sm:mb-8">
           Frequently Asked Questions
         </h2>
 
-        <div className="space-y-4">
+        <div className="space-y-2 sm:space-y-4">
           {[
             {
               question:
@@ -87,13 +89,13 @@ const GuideFaq: React.FC = () => {
             <div key={index} className="border border-neutral-700 rounded-lg">
               <button
                 onClick={() => toggleItem(index)}
-                className="w-full px-6 py-4 flex justify-between items-center text-left"
+                className="w-full px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center text-left"
               >
-                <h3 className="text-lg font-medium text-white">
+                <h3 className="text-base sm:text-lg font-medium text-white">
                   {faq.question}
                 </h3>
                 <svg
-                  className={`w-6 h-6 transform transition-transform ${
+                  className={`w-5 h-5 sm:w-6 sm:h-6 transform transition-transform ${
                     openItems.includes(index) ? "rotate-180" : ""
                   }`}
                   fill="none"
@@ -111,8 +113,10 @@ const GuideFaq: React.FC = () => {
                 </svg>
               </button>
               {openItems.includes(index) && (
-                <div className="px-6 pb-4">
-                  <p className="text-neutral-400">{faq.answer}</p>
+                <div className="px-4 sm:px-6 pb-3 sm:pb-4">
+                  <p className="text-sm sm:text-base text-neutral-400">
+                    {faq.answer}
+                  </p>
                 </div>
               )}
             </div>

@@ -339,23 +339,23 @@ const WalletProvider: FC = () => {
           `}</style>
           <div className="min-h-screen bg-neutral-900">
             {/* Announcement Banner */}
-            <div className="bg-indigo-600 text-white text-center py-2 px-4 text-sm font-medium">
+            <div className="bg-indigo-600 text-white text-center py-2 px-4 text-xs sm:text-sm font-medium">
               CREATE YOUR TOKEN FOR ONLY 0.1 SOL UNTIL FEB 28TH
             </div>
 
             {/* Header */}
-            <header className="p-4 border-b border-neutral-800 relative">
-              <div className="flex justify-between items-center max-w-7xl mx-auto">
+            <header className="p-4 border-b border-neutral-800">
+              <div className="flex flex-col sm:flex-row justify-between items-center max-w-7xl mx-auto">
                 {/* Website Name */}
-                <div className="flex items-center">
+                <div className="flex items-center mb-4 sm:mb-0">
                   <Image
                     src="/memefast.png"
                     alt="MemeFast Logo"
-                    className="mr-4"
-                    width={60}
-                    height={60}
+                    className="mr-2 sm:mr-4"
+                    width={40}
+                    height={40}
                   />
-                  <div className="text-2xl font-bold Lexend text-white">
+                  <div className="text-xl sm:text-2xl font-bold Lexend text-white">
                     Meme
                     <span className="text-indigo-400 font-medium">
                       Fast.fun
@@ -364,18 +364,18 @@ const WalletProvider: FC = () => {
                 </div>
 
                 {/* Wallet Section */}
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2 sm:space-x-4">
                   <WalletBalance />
                   <WalletMultiButton />
                 </div>
               </div>
 
-              {/* Navigation Menu - Centered */}
-              <nav className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                <div className="flex space-x-6">
+              {/* Navigation Menu */}
+              <nav className="mt-4 sm:mt-0">
+                <div className="flex justify-center space-x-2 sm:space-x-6">
                   <button
                     onClick={() => setCurrentView("create")}
-                    className={`px-4 py-2 font-medium rounded-md transition-colors ${
+                    className={`px-2 sm:px-4 py-2 text-sm sm:text-base font-medium rounded-md transition-colors ${
                       currentView === "create"
                         ? "text-indigo-400"
                         : "text-neutral-400 hover:text-indigo-700"
@@ -390,13 +390,13 @@ const WalletProvider: FC = () => {
                         "_blank"
                       )
                     }
-                    className={`px-4 py-2 font-medium rounded-md transition-colors text-neutral-400 hover:text-indigo-700`}
+                    className={`px-2 sm:px-4 py-2 text-sm sm:text-base font-medium rounded-md transition-colors text-neutral-400 hover:text-indigo-700`}
                   >
                     Create Liquidity
                   </button>
                   <button
                     onClick={() => setCurrentView("affiliate")}
-                    className={`px-4 py-2 font-medium rounded-md transition-colors hidden ${
+                    className={`px-2 sm:px-4 py-2 text-sm sm:text-base font-medium rounded-md transition-colors hidden ${
                       currentView === "affiliate"
                         ? "text-indigo-400"
                         : "text-neutral-400 hover:text-indigo-700"
@@ -408,13 +408,13 @@ const WalletProvider: FC = () => {
               </nav>
             </header>
 
-            <main className="flex flex-col items-center justify-center pt-16">
+            <main className="flex flex-col items-center justify-center pt-8 sm:pt-16 px-4 sm:px-0">
               {currentView === "create" ? (
                 <>
-                  <h1 className="text-4xl font-bold mb-2 text-white bg-indigo-600 px-4 py-2 rounded-lg Lexend">
+                  <h1 className="text-2xl sm:text-4xl font-bold mb-2 text-white bg-indigo-600 px-4 py-2 rounded-lg Lexend text-center">
                     Create Your Own Token FAST ⚡
                   </h1>
-                  <p className="text-lg text-neutral-400">
+                  <p className="text-base sm:text-lg text-neutral-400 text-center mb-8">
                     Launch your own token on Solana in seconds. No coding
                     required.
                   </p>
@@ -426,9 +426,9 @@ const WalletProvider: FC = () => {
               )}
 
               {/* Footer */}
-              <footer className="w-full bg-neutral-800 border-t border-neutral-700 py-12 mt-auto">
+              <footer className="w-full bg-neutral-800 border-t border-neutral-700 py-8 sm:py-12 mt-16">
                 <div className="max-w-7xl mx-auto px-4">
-                  <p className="text-xs text-neutral-400 mb-6 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-neutral-400 mb-6 leading-relaxed">
                     memefast.fun is a token creation platform that allows users
                     to generate Solana-based tokens instantly, with no coding
                     required. memefast.fun does not issue, endorse, manage, or
@@ -450,7 +450,7 @@ const WalletProvider: FC = () => {
                     may arise. Always conduct your own due diligence before
                     engaging with any token or project.
                   </p>
-                  <div className="text-sm text-neutral-500 flex flex-wrap items-center justify-between">
+                  <div className="text-xs sm:text-sm text-neutral-500 flex flex-wrap items-center justify-between">
                     <span>© 2025 memefast.fun | All Rights Reserved</span>
                     <div className="items-center space-x-4 hidden">
                       <a

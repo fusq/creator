@@ -107,18 +107,18 @@ const CreatedTokensList = ({ refreshTrigger }: { refreshTrigger: number }) => {
   if (tokens.length === 0) return null;
 
   return (
-    <div className="w-[900px] mx-auto p-6">
-      <h2 className="text-2xl font-semibold text-white mb-8">
+    <div className="w-full max-w-[900px] mx-auto p-4 sm:p-6">
+      <h2 className="text-xl sm:text-2xl font-semibold text-white mb-6 sm:mb-8">
         Your Created Tokens
       </h2>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {tokens.map((token, index) => (
           <div
             key={index}
-            className="bg-neutral-800 rounded-lg p-6 border border-neutral-700"
+            className="bg-neutral-800 rounded-lg p-4 sm:p-6 border border-neutral-700"
           >
-            <div className="flex justify-between items-start mb-4">
-              <div className="flex items-start space-x-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start mb-4">
+              <div className="flex items-start space-x-4 mb-4 sm:mb-0">
                 {token.image && (
                   <div className="flex-shrink-0">
                     <Image
@@ -131,10 +131,10 @@ const CreatedTokensList = ({ refreshTrigger }: { refreshTrigger: number }) => {
                   </div>
                 )}
                 <div>
-                  <h3 className="text-xl font-medium text-white">
+                  <h3 className="text-lg sm:text-xl font-medium text-white">
                     {token.name} ({token.symbol})
                   </h3>
-                  <p className="text-neutral-400 text-sm mt-1">
+                  <p className="text-neutral-400 text-xs sm:text-sm mt-1">
                     Created on{" "}
                     {new Date(token.creationDate).toLocaleString("en-US", {
                       year: "numeric",
@@ -148,7 +148,7 @@ const CreatedTokensList = ({ refreshTrigger }: { refreshTrigger: number }) => {
                 </div>
               </div>
               <div className="flex items-center space-x-4">
-                <span className="text-neutral-400 text-sm">
+                <span className="text-neutral-400 text-xs sm:text-sm">
                   Total Supply: {Number(token.totalSupply).toLocaleString()}
                 </span>
                 <button
@@ -157,7 +157,7 @@ const CreatedTokensList = ({ refreshTrigger }: { refreshTrigger: number }) => {
                   title="Delete token"
                 >
                   <svg
-                    className="w-5 h-5"
+                    className="w-4 h-4 sm:w-5 sm:h-5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -173,8 +173,8 @@ const CreatedTokensList = ({ refreshTrigger }: { refreshTrigger: number }) => {
               </div>
             </div>
 
-            <div className="flex items-center space-x-2 mb-6">
-              <code className="flex-1 p-3 bg-neutral-900 rounded-lg text-neutral-300 font-mono text-sm">
+            <div className="flex items-center space-x-2 mb-4 sm:mb-6">
+              <code className="flex-1 p-2 sm:p-3 bg-neutral-900 rounded-lg text-neutral-300 font-mono text-xs sm:text-sm break-all">
                 {token.tokenAddress}
               </code>
               <button
@@ -215,7 +215,7 @@ const CreatedTokensList = ({ refreshTrigger }: { refreshTrigger: number }) => {
               </button>
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4">
               <a
                 href={`https://raydium.io/liquidity/create-pool?fromCurrency=${token.tokenAddress}`}
                 target="_blank"
@@ -884,10 +884,13 @@ export const TokenCreationForm = () => {
   };
 
   const renderStep1 = () => (
-    <div className="space-y-8 border border-indigo-600 rounded-lg p-8 text-white bg-neutral-800 bg-opacity-50 shadow-lg shadow-indigo-600/40">
-      <div className="flex space-x-6">
+    <div className="space-y-6 sm:space-y-8 border border-indigo-600 rounded-lg p-4 sm:p-8 text-white bg-neutral-800 bg-opacity-50 shadow-lg shadow-indigo-600/40">
+      <div className="flex flex-col sm:flex-row sm:space-x-6 space-y-6 sm:space-y-0">
         <div className="flex-1">
-          <label htmlFor="name" className="block text-base font-medium mb-2">
+          <label
+            htmlFor="name"
+            className="block text-sm sm:text-base font-medium mb-2"
+          >
             Token Name
           </label>
           <input
@@ -899,11 +902,14 @@ export const TokenCreationForm = () => {
             required
             placeholder="Meme Coin"
             disabled={!connected || !publicKey}
-            className="p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
+            className="p-2 sm:p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-sm sm:text-base"
           />
         </div>
         <div className="flex-1">
-          <label htmlFor="symbol" className="block text-base font-medium mb-2">
+          <label
+            htmlFor="symbol"
+            className="block text-sm sm:text-base font-medium mb-2"
+          >
             Token Symbol
           </label>
           <input
@@ -915,13 +921,13 @@ export const TokenCreationForm = () => {
             required
             placeholder="MEMC"
             disabled={!connected || !publicKey}
-            className="p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
+            className="p-2 sm:p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-sm sm:text-base"
           />
         </div>
       </div>
       <div
         {...getRootProps()}
-        className="border-2 border-dashed border-gray-300 rounded-lg p-12 cursor-pointer hover:border-indigo-500 transition-colors min-h-[200px] flex items-center justify-center"
+        className="border-2 border-dashed border-gray-300 rounded-lg p-4 sm:p-12 cursor-pointer hover:border-indigo-500 transition-colors min-h-[150px] sm:min-h-[200px] flex items-center justify-center"
       >
         <input {...getInputProps()} />
         {isImageUploading ? (
@@ -967,11 +973,11 @@ export const TokenCreationForm = () => {
   );
 
   const renderStep2 = () => (
-    <div className="space-y-8 text-white border border-indigo-600 rounded-lg p-8 bg-neutral-800 bg-opacity-50 shadow-lg shadow-indigo-600/40">
+    <div className="space-y-6 sm:space-y-8 text-white border border-indigo-600 rounded-lg p-4 sm:p-8 bg-neutral-800 bg-opacity-50 shadow-lg shadow-indigo-600/40">
       <div>
         <label
           htmlFor="totalSupply"
-          className="block text-base font-medium mb-2"
+          className="block text-sm sm:text-base font-medium mb-2"
         >
           Total Supply
         </label>
@@ -984,16 +990,16 @@ export const TokenCreationForm = () => {
           required
           min="1"
           disabled={!connected || !publicKey}
-          className="p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
+          className="p-2 sm:p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-sm sm:text-base"
         />
-        <p className="mt-2 text-sm text-neutral-400">
+        <p className="mt-2 text-xs sm:text-sm text-neutral-400">
           1 billion by default (recommended), 6 decimals
         </p>
       </div>
       <div>
         <label
           htmlFor="description"
-          className="block text-base font-medium mb-2"
+          className="block text-sm sm:text-base font-medium mb-2"
         >
           Description
         </label>
@@ -1005,7 +1011,7 @@ export const TokenCreationForm = () => {
           required
           rows={6}
           disabled={!connected || !publicKey}
-          className="p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
+          className="p-2 sm:p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-sm sm:text-base"
           placeholder="Describe your token's purpose and vision..."
         />
       </div>
@@ -1013,7 +1019,7 @@ export const TokenCreationForm = () => {
   );
 
   const renderStep3 = () => (
-    <div className="space-y-8 text-white border border-indigo-600 rounded-lg p-8 bg-neutral-800 bg-opacity-50 shadow-lg shadow-indigo-600/40">
+    <div className="space-y-6 sm:space-y-8 text-white border border-indigo-600 rounded-lg p-4 sm:p-8 bg-neutral-800 bg-opacity-50 shadow-lg shadow-indigo-600/40">
       {/* Creator Info Toggle */}
       <div className="flex items-center justify-between">
         <div>
@@ -1203,7 +1209,7 @@ export const TokenCreationForm = () => {
           off.
         </p>
 
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           <div className="border border-neutral-600 rounded-lg p-6 relative">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-2">
@@ -1359,7 +1365,7 @@ export const TokenCreationForm = () => {
           <p className="text-xl text-white mb-4">
             Please connect your wallet to create a token
           </p>
-          <WalletMultiButton className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">
+          <WalletMultiButton className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded text-sm sm:text-base">
             Connect Wallet
           </WalletMultiButton>
         </div>
@@ -1403,26 +1409,26 @@ export const TokenCreationForm = () => {
     <>
       <form
         onSubmit={handleSubmit}
-        className="space-y-8 w-[900px] mx-auto mt-8 p-6"
+        className="space-y-8 w-full max-w-[900px] mx-auto sm:mt-8 p-0 sm:p-6"
       >
         {errorMessage && (
           <div className="text-red-500 text-sm mb-4">{errorMessage}</div>
         )}
 
         {!connected ? (
-          <div className="text-center p-8 bg-neutral-800 rounded-lg border border-neutral-700">
-            <p className="text-xl text-white mb-4">
+          <div className="text-center p-4 sm:p-8 bg-neutral-800 rounded-lg border border-neutral-700">
+            <p className="text-lg sm:text-xl text-white mb-4">
               Please connect your wallet to create a token
             </p>
-            <WalletMultiButton className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">
+            <WalletMultiButton className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded text-sm sm:text-base">
               Connect Wallet
             </WalletMultiButton>
           </div>
         ) : (
           <>
             <div className="mb-4">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-semibold text-white">
+              <div className="flex justify-between items-center mb-4 sm:mb-6">
+                <h2 className="text-lg sm:text-xl font-semibold text-white">
                   Step {currentStep} of 3
                 </h2>
               </div>
@@ -1436,13 +1442,13 @@ export const TokenCreationForm = () => {
 
             {renderStepContent()}
 
-            <div className="flex justify-between mt-8">
-              <div>
+            <div className="flex flex-col sm:flex-row justify-between sm:mt-8 pb-8 sm:pb-0 space-y-0 sm:space-y-0">
+              <div className="w-full sm:w-auto order-2 sm:order-1 mt-4 sm:mt-0">
                 {currentStep > 1 && (
                   <button
                     type="button"
                     onClick={prevStep}
-                    className="px-4 py-2 border border-neutral-300 rounded-md shadow-sm font-medium text-neutral-300 hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 text-base flex items-center space-x-2"
+                    className="w-full sm:w-auto px-4 py-2 border border-neutral-300 rounded-md shadow-sm font-medium text-neutral-300 hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 text-sm sm:text-base flex items-center justify-center sm:justify-start space-x-2"
                   >
                     <svg
                       className="w-5 h-5"
@@ -1461,13 +1467,13 @@ export const TokenCreationForm = () => {
                   </button>
                 )}
               </div>
-              <div>
+              <div className="w-full sm:w-auto order-1 sm:order-2">
                 {currentStep < 3 && (
                   <button
                     type="button"
                     onClick={nextStep}
                     disabled={!canProceed()}
-                    className="px-4 py-2 border border-transparent rounded-md shadow-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400 disabled:cursor-not-allowed text-base flex items-center space-x-2"
+                    className="w-full sm:w-auto px-4 py-2 border border-transparent rounded-md shadow-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm sm:text-base flex items-center justify-center space-x-2"
                   >
                     <span>Next</span>
                     <svg
@@ -1495,7 +1501,7 @@ export const TokenCreationForm = () => {
                       !formData.image ||
                       !canProceed()
                     }
-                    className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400 disabled:cursor-not-allowed text-base flex items-center justify-center space-x-2 relative"
+                    className="w-full sm:w-auto py-2 px-4 border border-transparent rounded-md shadow-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm sm:text-base flex items-center justify-center space-x-2 relative"
                   >
                     {isLoading ? (
                       <>
