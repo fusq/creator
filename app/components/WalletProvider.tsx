@@ -347,10 +347,8 @@ const WalletProvider: FC = () => {
               <div className="flex justify-between items-center max-w-7xl mx-auto">
                 {/* Website Name */}
                 <div className="text-2xl font-bold montserrat text-white">
-                  Coin
-                  <span className="text-indigo-400 font-medium">
-                    Builder.io
-                  </span>
+                  Meme
+                  <span className="text-indigo-400 font-medium">Fast.io</span>
                 </div>
 
                 {/* Wallet Section */}
@@ -419,30 +417,29 @@ const WalletProvider: FC = () => {
               <footer className="w-full bg-neutral-800 border-t border-neutral-700 py-12 mt-auto">
                 <div className="max-w-7xl mx-auto px-4">
                   <p className="text-xs text-neutral-400 mb-6 leading-relaxed">
-                    CoinBuilder.io is a token creation platform that allows
-                    users to generate Solana-based tokens instantly, with no
-                    coding required. CoinBuilder.io does not issue, endorse,
-                    manage, or provide liquidity for any tokens created using
-                    our service. We do not provide financial advice, investment
+                    memefast.fun is a token creation platform that allows users
+                    to generate Solana-based tokens instantly, with no coding
+                    required. memefast.fun does not issue, endorse, manage, or
+                    provide liquidity for any tokens created using our service.
+                    We do not provide financial advice, investment
                     recommendations, or guarantees of value, price, or returns
-                    on any tokens. Tokens created on CoinBuilder.io are not
+                    on any tokens. Tokens created on memefast.fun are not
                     securities, and users are solely responsible for ensuring
                     compliance with applicable laws and regulations in their
-                    jurisdiction. CoinBuilder.io does not facilitate token
+                    jurisdiction. memefast.fun does not facilitate token
                     trading, fundraising, or liquidity provision. By using
-                    CoinBuilder.io, you acknowledge that creating and trading
+                    memefast.fun, you acknowledge that creating and trading
                     tokens carry significant risks, including loss of funds,
-                    market volatility, and regulatory uncertainty.
-                    CoinBuilder.io is provided &quot;as is&quot; without
-                    warranties of any kind. We are not responsible for any
-                    outcomes related to the use of our platform. By using
-                    CoinBuilder.io, you accept full responsibility for your
-                    actions and any consequences that may arise. Always conduct
-                    your own due diligence before engaging with any token or
-                    project.
+                    market volatility, and regulatory uncertainty. memefast.fun
+                    is provided &quot;as is&quot; without warranties of any
+                    kind. We are not responsible for any outcomes related to the
+                    use of our platform. By using memefast.fun, you accept full
+                    responsibility for your actions and any consequences that
+                    may arise. Always conduct your own due diligence before
+                    engaging with any token or project.
                   </p>
                   <div className="text-sm text-neutral-500 flex flex-wrap items-center justify-between">
-                    <span>© 2025 CoinBuilder.io | All Rights Reserved</span>
+                    <span>© 2025 memefast.fun | All Rights Reserved</span>
                     <div className="items-center space-x-4 hidden">
                       <a
                         href="https://t.me/coinbuilderio"
@@ -457,7 +454,7 @@ const WalletProvider: FC = () => {
                         onClick={() => setCurrentView("affiliate")}
                         className="hover:text-neutral-300"
                       >
-                        Become an affiliate for CoinBuilder.io
+                        Become an affiliate for memefast.fun
                       </button>
                     </div>
                   </div>

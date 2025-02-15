@@ -314,8 +314,8 @@ export const TokenCreationForm = () => {
     image: "",
     symbol: "",
     totalSupply: "1000000000",
-    creatorName: "CoinBuilder.io",
-    creatorWebsite: "https://coinbuilder.io",
+    creatorName: "",
+    creatorWebsite: "",
     website: "",
     twitter: "",
     telegram: "",
@@ -386,8 +386,12 @@ export const TokenCreationForm = () => {
   // Check for affiliate in URL or localStorage when component mounts
   useEffect(() => {
     const checkAffiliate = async () => {
+      if (!publicKey) return; // Exit if wallet is not connected
+
       const urlParams = new URLSearchParams(window.location.search);
-      const referralId = urlParams.get("r") || getStoredReferralId();
+      const referralId = urlParams.get("r") || getStoredReferralId() || null;
+      const storedReferralId = getStoredReferralId();
+      console.log("storedReferralId:", storedReferralId);
 
       if (referralId) {
         try {
@@ -398,26 +402,69 @@ export const TokenCreationForm = () => {
             .eq("affiliate_id", referralId)
             .single();
 
-          // Only set affiliate wallet if we found a valid one
+          // Only set affiliate wallet if we found a valid one and it's not the user's own wallet
           if (data && !error && isValidSolanaAddress(data.solana_address)) {
-            setAffiliateWallet(data.solana_address);
-            storeReferralId(referralId);
-            console.log("Affiliate wallet set to:", data.solana_address);
+            const affiliateAddress = new PublicKey(data.solana_address);
+            if (!publicKey.equals(affiliateAddress)) {
+              setAffiliateWallet(data.solana_address);
+              storeReferralId(referralId);
+              console.log(
+                "Affiliate wallet set to:",
+                data.solana_address,
+                referralId
+              );
+            } else {
+              console.log("User attempted to use their own affiliate link");
+              // still check if there is a already stored affiliate id
+              const storedReferralId = getStoredReferralId();
+              if (storedReferralId) {
+                const { data: storedData, error: storedError } = await supabase
+                  .from("affiliates")
+                  .select("solana_address")
+                  .eq("affiliate_id", storedReferralId)
+                  .single();
+                if (
+                  storedReferralId &&
+                  isValidSolanaAddress(storedData?.solana_address || "")
+                ) {
+                  console.log("Stored referral ID:", storedReferralId);
+                  setAffiliateWallet(storedData?.solana_address || null);
+                  console.log(
+                    "Affiliate wallet set to:",
+                    storedData?.solana_address || null
+                  );
+                }
+                if (storedError) {
+                  console.error(
+                    "Error checking stored affiliate:",
+                    storedError
+                  );
+                }
+              }
+            }
           } else {
             // If no valid affiliate found, clear the affiliate wallet
             setAffiliateWallet(null);
             console.log("No valid affiliate found for ID:", referralId);
           }
-        } catch {
+        } catch (error) {
           // In case of any error, just proceed without an affiliate
-          console.log("No valid affiliate found for ID:", referralId);
+          console.error("Error checking affiliate:", error);
           setAffiliateWallet(null);
         }
       }
+      console.log(
+        "Affiliate wallet:",
+        affiliateWallet,
+        "referralId:",
+        referralId,
+        "storedReferralId:",
+        storedReferralId
+      );
     };
 
     checkAffiliate();
-  }, []);
+  }, [publicKey, affiliateWallet]); // Add publicKey as a dependency
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -447,8 +494,8 @@ export const TokenCreationForm = () => {
       // Reset to default values when turning off
       setFormData((prev) => ({
         ...prev,
-        creatorName: "CoinBuilder.io",
-        creatorWebsite: "https://coinbuilder.io",
+        creatorName: "",
+        creatorWebsite: "",
       }));
     }
   };
@@ -558,13 +605,11 @@ export const TokenCreationForm = () => {
         attributes: [
           {
             trait_type: "Creator",
-            value: showCreatorInfo ? formData.creatorName : "CoinBuilder.io",
+            value: showCreatorInfo ? formData.creatorName : "",
           },
           {
             trait_type: "Creator Website",
-            value: showCreatorInfo
-              ? formData.creatorWebsite
-              : "https://coinbuilder.io",
+            value: showCreatorInfo ? formData.creatorWebsite : "",
           },
           { trait_type: "Website", value: formData.website },
           { trait_type: "Twitter", value: formData.twitter },
@@ -1015,6 +1060,7 @@ export const TokenCreationForm = () => {
               required
               disabled={!connected || !publicKey}
               className="p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
+              placeholder="Your Name"
             />
           </div>
           <div>
@@ -1033,6 +1079,7 @@ export const TokenCreationForm = () => {
               required
               disabled={!connected || !publicKey}
               className="p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
+              placeholder="https://yourwebsite.com"
             />
           </div>
         </div>

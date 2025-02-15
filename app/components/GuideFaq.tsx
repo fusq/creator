@@ -81,7 +81,7 @@ const GuideFaq: React.FC = () => {
               question:
                 "What platforms can assist with launching a token on Solana?",
               answer:
-                "There are several platforms available, including CoinBuilder.io (our platform), which provides a user-friendly interface for token creation. Other options include Solana's CLI tools and various development frameworks, but our platform offers the most straightforward solution for non-technical users, without any coding required.",
+                "There are several platforms available, including memefast.fun (our platform), which provides a user-friendly interface for token creation. Other options include Solana's CLI tools and various development frameworks, but our platform offers the most straightforward solution for non-technical users, without any coding required.",
             },
           ].map((faq, index) => (
             <div key={index} className="border border-neutral-700 rounded-lg">
