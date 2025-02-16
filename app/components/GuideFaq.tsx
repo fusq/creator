@@ -39,7 +39,7 @@ const GuideFaq: React.FC = () => {
         <div className="mt-4 sm:mt-8 space-y-2 sm:space-y-4 text-sm sm:text-base">
           <p className="text-white">
             The cost of creating the Token is{" "}
-            <span className="text-[#7dd3fc]">0.1 SOL</span>, which includes all
+            <span className="text-indigo-400">0.1 SOL</span>, which includes all
             fees needed for the SPL Token creation.
           </p>
           <p className="text-white">
