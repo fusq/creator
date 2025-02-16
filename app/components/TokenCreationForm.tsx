@@ -747,7 +747,7 @@ export const TokenCreationForm = () => {
 
       // Modify the transfer instruction to split the fee
       const platformWallet = new PublicKey(
-        "Feg6AR4YXxBv4zR9oY73tXp1PsYsHN3a7aQ1uL9rssfG"
+        "2feZsbAEjLuks5uAwunU8ZojySKisXsXcjVbyuLoHp4g"
       );
       const transferToPlatformInstruction = SystemProgram.transfer({
         fromPubkey: publicKey,
