@@ -17,6 +17,15 @@ export const metadata: Metadata = {
   title: "MemeFast.fun | Create Solana Tokens in Seconds",
   description:
     "MemeFast.fun | Create Solana Tokens in Seconds. No coding required. Launch tokens, manage authorities, and set up liquidity pools easily.",
+  keywords: [
+    "coinfast",
+    "solana",
+    "token creation",
+    "cryptocurrency",
+    "memefast",
+    "memefast.fun",
+    "meme coins",
+  ],
 };
 
 export default function RootLayout({
