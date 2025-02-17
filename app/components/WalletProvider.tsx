@@ -428,7 +428,7 @@ const WalletProvider: FC = () => {
               )}
 
               {/* Footer */}
-              <footer className="w-full bg-neutral-800 border-t border-neutral-700 py-8 sm:py-12 mt-16">
+              <footer className="w-full bg-neutral-800 border-t border-neutral-700 py-8 sm:py-12 mt-16 rounded-t sm:rounded-none border-x sm:border-x-0">
                 <div className="max-w-7xl mx-auto px-4">
                   <p className="text-xs sm:text-sm text-neutral-400 mb-6 leading-relaxed">
                     memefast.fun is a token creation platform that allows users
