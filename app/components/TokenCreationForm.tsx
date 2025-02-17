@@ -478,6 +478,11 @@ export const TokenCreationForm = () => {
         [name]: type === "checkbox" ? checked : value,
       };
 
+      // Limit symbol to 8 characters without forcing uppercase
+      if (name === "symbol") {
+        newState.symbol = value.slice(0, 8);
+      }
+
       // Reset creator info to defaults if customCreatorInfo is turned off
       if (name === "customCreatorInfo" && !checked) {
         newState.creatorName = "Creator Name";
@@ -910,7 +915,7 @@ export const TokenCreationForm = () => {
             htmlFor="symbol"
             className="block text-sm sm:text-base font-medium mb-2"
           >
-            Token Symbol
+            Token Symbol (max 8 characters)
           </label>
           <input
             type="text"
@@ -919,6 +924,7 @@ export const TokenCreationForm = () => {
             value={formData.symbol}
             onChange={handleChange}
             required
+            maxLength={8}
             placeholder="MEMC"
             disabled={!connected || !publicKey}
             className="p-2 sm:p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
