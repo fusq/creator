@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useWallet } from "@solana/wallet-adapter-react";
+import { useWallet, useConnection } from "@solana/wallet-adapter-react";
 import {
   Connection,
   Transaction,
@@ -29,6 +29,8 @@ import axios from "axios";
 import { useDropzone } from "react-dropzone";
 import { createClient } from "@supabase/supabase-js";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { ToastContainer, toast as toastify } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface TokenMetadata {
   name: string;
@@ -297,6 +299,7 @@ const CreatedTokensList = ({ refreshTrigger }: { refreshTrigger: number }) => {
 
 export const TokenCreationForm = () => {
   const { publicKey, signTransaction, connected } = useWallet();
+  const { connection } = useConnection();
   const [isLoading, setIsLoading] = useState(false);
   const [isImageUploading, setIsImageUploading] = useState(false);
   const [isTransactionSubmitted, setIsTransactionSubmitted] = useState(false);
@@ -327,7 +330,7 @@ export const TokenCreationForm = () => {
   });
   const [imagePreview, setImagePreview] = useState<string>("");
   const [copySuccess, setCopySuccess] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [userBalance, setUserBalance] = useState<number | null>(null);
 
   const [devnetConnection, setDevnetConnection] = useState<Connection | null>(
     null
@@ -343,6 +346,16 @@ export const TokenCreationForm = () => {
     );
     setDevnetConnection(newConnection);
   }, []);
+
+  useEffect(() => {
+    const fetchBalance = async () => {
+      if (publicKey && connection) {
+        const balance = await connection.getBalance(publicKey);
+        setUserBalance(balance / LAMPORTS_PER_SOL);
+      }
+    };
+    fetchBalance();
+  }, [publicKey, connection]);
 
   // Function to validate Solana address
   const isValidSolanaAddress = (address: string): boolean => {
@@ -443,9 +456,33 @@ export const TokenCreationForm = () => {
               }
             }
           } else {
-            // If no valid affiliate found, clear the affiliate wallet
-            setAffiliateWallet(null);
-            console.log("No valid affiliate found for ID:", referralId);
+            // If no valid affiliate found for ID, check local storage
+            const storedReferralId = getStoredReferralId();
+            if (storedReferralId) {
+              const { data: storedData, error: storedError } = await supabase
+                .from("affiliates")
+                .select("solana_address")
+                .eq("affiliate_id", storedReferralId)
+                .single();
+
+              if (
+                storedData &&
+                !storedError &&
+                isValidSolanaAddress(storedData.solana_address)
+              ) {
+                setAffiliateWallet(storedData.solana_address);
+                console.log(
+                  "Affiliate wallet set from stored ID:",
+                  storedData.solana_address
+                );
+              } else {
+                setAffiliateWallet(null);
+                console.log("No valid affiliate found in local storage");
+              }
+            } else {
+              setAffiliateWallet(null);
+              console.log("No valid affiliate found for ID:", referralId);
+            }
           }
         } catch (error) {
           // In case of any error, just proceed without an affiliate
@@ -571,15 +608,36 @@ export const TokenCreationForm = () => {
     maxFiles: 1,
   });
 
+  const showToast = (message: string, type: "error" | "success") => {
+    if (type === "error") {
+      toastify.error(message, {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    } else {
+      toastify.success(message, {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!connected || !publicKey || !signTransaction || !devnetConnection) {
-      setErrorMessage("Please connect your wallet first");
+      showToast("Please connect your wallet first", "error");
       return;
     }
-
-    // Reset error message at the start of submission
-    setErrorMessage("");
 
     // Calculate total SOL fee based on selected options
     const baseFee = 0.1; // Base fee for token creation
@@ -594,9 +652,19 @@ export const TokenCreationForm = () => {
       revokeUpdateFee +
       customCreatorInfoFee;
 
-    // Calculate affiliate fee (50% of total fee)
-    const affiliateFee = affiliateWallet ? totalFee * 0.5 : 0;
-    const platformFee = totalFee - affiliateFee;
+    // Add 0.02 SOL buffer for balance check
+    const balanceCheckAmount = totalFee + 0.02;
+
+    // Check if user has enough balance
+    if (userBalance === null || userBalance < balanceCheckAmount) {
+      showToast(
+        `Insufficient balance. You need at least ${balanceCheckAmount.toFixed(
+          2
+        )} SOL to create this token. Please add more SOL or switch to a wallet with the necessary balance.`,
+        "error"
+      );
+      return;
+    }
 
     setIsLoading(true);
     try {
@@ -750,24 +818,39 @@ export const TokenCreationForm = () => {
       const createMetadataInstruction = builder.getInstructions()[0];
       transaction.add(createMetadataInstruction);
 
-      // Modify the transfer instruction to split the fee
+      // Modify the transfer instruction to handle fee transfer
       const platformWallet = new PublicKey(
         "2feZsbAEjLuks5uAwunU8ZojySKisXsXcjVbyuLoHp4g"
       );
-      const transferToPlatformInstruction = SystemProgram.transfer({
-        fromPubkey: publicKey,
-        toPubkey: platformWallet,
-        lamports: Math.floor(platformFee * LAMPORTS_PER_SOL),
-      });
-      transaction.add(transferToPlatformInstruction);
+
+      const totalFeeLamports = Math.floor(totalFee * LAMPORTS_PER_SOL);
 
       if (affiliateWallet) {
+        // If there's an affiliate, split the fee
+        const platformFee = Math.floor(totalFeeLamports * 0.5);
+        const affiliateFee = totalFeeLamports - platformFee;
+
+        const transferToPlatformInstruction = SystemProgram.transfer({
+          fromPubkey: publicKey,
+          toPubkey: platformWallet,
+          lamports: platformFee,
+        });
+        transaction.add(transferToPlatformInstruction);
+
         const transferToAffiliateInstruction = SystemProgram.transfer({
           fromPubkey: publicKey,
           toPubkey: new PublicKey(affiliateWallet),
-          lamports: Math.floor(affiliateFee * LAMPORTS_PER_SOL),
+          lamports: affiliateFee,
         });
         transaction.add(transferToAffiliateInstruction);
+      } else {
+        // If there's no affiliate, transfer the full fee to the platform
+        const transferToPlatformInstruction = SystemProgram.transfer({
+          fromPubkey: publicKey,
+          toPubkey: platformWallet,
+          lamports: totalFeeLamports,
+        });
+        transaction.add(transferToPlatformInstruction);
       }
 
       // Add revoke instructions based on checkbox selections
@@ -816,16 +899,6 @@ export const TokenCreationForm = () => {
       if (formData.revokeMint) console.log("Mint authority has been revoked");
       if (formData.revokeFreeze)
         console.log("Freeze authority has been revoked");
-      console.log(
-        `${platformFee.toFixed(1)} SOL transferred to platform wallet`
-      );
-      if (affiliateWallet) {
-        console.log(
-          `${affiliateFee.toFixed(
-            1
-          )} SOL transferred to affiliate wallet: ${affiliateWallet}`
-        );
-      }
 
       // After successful creation, update the state with token info
       const tokenInfo = {
@@ -853,7 +926,6 @@ export const TokenCreationForm = () => {
       // Reset only necessary state variables
       setIsLoading(false);
       setIsTransactionSubmitted(false);
-      setErrorMessage("");
 
       // Keep the form data as is, just reset the currentStep to 3
       setCurrentStep(3);
@@ -863,13 +935,14 @@ export const TokenCreationForm = () => {
       if (error instanceof Error) {
         // Check for user rejection
         if (error.message.includes("User rejected")) {
-          setErrorMessage("Transaction was rejected");
+          showToast("Transaction was rejected", "error");
         } else {
-          setErrorMessage(`Error creating token: ${error.message}`);
+          showToast(`Error creating token: ${error.message}`, "error");
         }
       } else {
-        setErrorMessage(
-          "An unexpected error occurred while creating the token"
+        showToast(
+          "An unexpected error occurred while creating the token",
+          "error"
         );
       }
     } finally {
@@ -1417,10 +1490,6 @@ export const TokenCreationForm = () => {
         onSubmit={handleSubmit}
         className="space-y-8 w-full max-w-[900px] mx-auto sm:mt-8 p-0 sm:p-6"
       >
-        {errorMessage && (
-          <div className="text-red-500 text-sm mb-4">{errorMessage}</div>
-        )}
-
         {!connected ? (
           <div className="text-center p-4 sm:p-8 bg-neutral-800 rounded-lg border border-neutral-700">
             <p className="text-lg sm:text-xl text-white mb-4">
@@ -1774,6 +1843,19 @@ export const TokenCreationForm = () => {
 
       {/* Modify the CreatedTokensList component call */}
       <CreatedTokensList refreshTrigger={refreshTokenList} />
+
+      <ToastContainer
+        position="bottom-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        limit={2}
+      />
     </>
   );
 };
