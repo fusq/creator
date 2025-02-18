@@ -14,7 +14,7 @@ const GuideFaq: React.FC = () => {
   return (
     <>
       {/* How to use guide */}
-      <div className="w-full max-w-[862px] bg-neutral-800 rounded-2xl p-4 sm:p-8 md:p-12 mb-8 sm:mb-16 mt-8 border border-neutral-700">
+      <div className="w-full max-w-[900px] bg-neutral-800 rounded-2xl p-4 sm:p-8 md:p-12 mb-8 sm:mb-16 mt-8 border border-neutral-700">
         <h2 className="text-xl sm:text-2xl font-semibold text-white mb-4 sm:mb-8">
           How to use Solana Token Creator
         </h2>
@@ -51,7 +51,7 @@ const GuideFaq: React.FC = () => {
       </div>
 
       {/* FAQ Section */}
-      <div className="w-full max-w-[862px] bg-neutral-800 rounded-2xl p-4 sm:p-8 md:p-12 mb-8 sm:mb-16 border border-neutral-700">
+      <div className="w-full max-w-[900px] bg-neutral-800 rounded-2xl p-4 sm:p-8 md:p-12 mb-8 sm:mb-16 border border-neutral-700">
         <h2 className="text-xl sm:text-2xl font-semibold text-white mb-4 sm:mb-8">
           Frequently Asked Questions
         </h2>

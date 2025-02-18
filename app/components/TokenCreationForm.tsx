@@ -127,7 +127,7 @@ const CreatedTokensList = ({ refreshTrigger }: { refreshTrigger: number }) => {
   if (tokens.length === 0) return null;
 
   return (
-    <div className="w-full max-w-[900px] mx-auto p-0 sm:p-6">
+    <div className="w-full max-w-[950px] mx-auto p-0 sm:p-6">
       <h2 className="text-xl sm:text-2xl font-semibold text-white mb-6 sm:mb-8 mt-12 sm:mt-0">
         Your Created Tokens
       </h2>
@@ -996,14 +996,14 @@ export const TokenCreationForm = () => {
   };
 
   const renderStep1 = () => (
-    <div className="space-y-6 sm:space-y-8 border border-indigo-600 rounded-lg p-4 sm:p-8 text-white bg-neutral-800 bg-opacity-50 shadow-lg shadow-indigo-600/40">
+    <div className="space-y-6 sm:space-y-8 rounded-lg text-white bg-neutral-800">
       <div className="flex flex-col sm:flex-row sm:space-x-6 space-y-6 sm:space-y-0">
         <div className="flex-1">
           <label
             htmlFor="name"
             className="block text-sm sm:text-base font-medium mb-2"
           >
-            Token Name
+            <span className="text-red-500">*</span> Token Name
           </label>
           <input
             ref={nameInputRef}
@@ -1015,15 +1015,17 @@ export const TokenCreationForm = () => {
             required
             placeholder="Meme Coin"
             disabled={!connected || !publicKey}
+            maxLength={32}
             className="p-2 sm:p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
           />
+          <p className="mt-1 text-xs text-gray-400">(max 32 characters)</p>
         </div>
         <div className="flex-1">
           <label
             htmlFor="symbol"
             className="block text-sm sm:text-base font-medium mb-2"
           >
-            Token Symbol (max 8 characters)
+            <span className="text-red-500">*</span> Token Symbol
           </label>
           <input
             type="text"
@@ -1037,63 +1039,69 @@ export const TokenCreationForm = () => {
             disabled={!connected || !publicKey}
             className="p-2 sm:p-3 block w-full rounded-md bg-neutral-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
           />
+          <p className="mt-1 text-xs text-gray-400">(max 8 characters)</p>
         </div>
       </div>
-      <div
-        {...getRootProps()}
-        className="border-2 border-dashed border-gray-300 rounded-lg p-4 sm:p-12 cursor-pointer hover:border-indigo-500 transition-colors min-h-[150px] sm:min-h-[200px] flex items-center justify-center"
-      >
-        <input {...getInputProps()} />
-        {isImageUploading ? (
-          <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>
-            <p className="mt-2 text-neutral-400">Uploading image...</p>
-          </div>
-        ) : imagePreview ? (
-          <div className="w-full flex flex-col items-center justify-center">
-            <Image
-              src={imagePreview}
-              alt="Preview"
-              className="max-h-24 rounded-lg"
-              width={100}
-              height={100}
-            />
-            <p className="mt-2 text-sm text-neutral-400">
-              {acceptedFiles[0]?.name || ""}
-            </p>
-          </div>
-        ) : (
-          <div className="text-center">
-            <svg
-              className="mx-auto h-12 w-12 text-neutral-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+      <div>
+        <label className="block text-sm sm:text-base font-medium mb-2">
+          <span className="text-red-500">*</span> Image
+        </label>
+        <div
+          {...getRootProps()}
+          className="border-2 border-dashed border-gray-300 rounded-lg p-4 sm:p-12 cursor-pointer hover:border-indigo-500 transition-colors min-h-[150px] sm:min-h-[200px] flex items-center justify-center"
+        >
+          <input {...getInputProps()} />
+          {isImageUploading ? (
+            <div className="text-center">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>
+              <p className="mt-2 text-neutral-400">Uploading image...</p>
+            </div>
+          ) : imagePreview ? (
+            <div className="w-full flex flex-col items-center justify-center">
+              <Image
+                src={imagePreview}
+                alt="Preview"
+                className="max-h-24 rounded-lg"
+                width={100}
+                height={100}
               />
-            </svg>
-            <p className="mt-1 text-sm text-neutral-400">
-              Click or drag to upload your token logo (500x500)
-            </p>
-          </div>
-        )}
+              <p className="mt-2 text-sm text-neutral-400">
+                {acceptedFiles[0]?.name || ""}
+              </p>
+            </div>
+          ) : (
+            <div className="text-center">
+              <svg
+                className="mx-auto h-12 w-12 text-neutral-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
+              <p className="mt-1 text-sm text-neutral-400">
+                Click or drag to upload your token logo (500x500)
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 
   const renderStep2 = () => (
-    <div className="space-y-6 sm:space-y-8 text-white border border-indigo-600 rounded-lg p-4 sm:p-8 bg-neutral-800 bg-opacity-50 shadow-lg shadow-indigo-600/40">
+    <div className="space-y-6 sm:space-y-8 text-white rounded-lg bg-neutral-800">
       <div>
         <label
           htmlFor="totalSupply"
           className="block text-sm sm:text-base font-medium mb-2"
         >
-          Total Supply
+          <span className="text-red-500">*</span> Total Supply
         </label>
         <input
           type="number"
@@ -1115,7 +1123,7 @@ export const TokenCreationForm = () => {
           htmlFor="description"
           className="block text-sm sm:text-base font-medium mb-2"
         >
-          Description
+          <span className="text-red-500">*</span> Description
         </label>
         <textarea
           id="description"
@@ -1133,7 +1141,7 @@ export const TokenCreationForm = () => {
   );
 
   const renderStep3 = () => (
-    <div className="space-y-6 sm:space-y-8 text-white border border-indigo-600 rounded-lg p-4 sm:p-8 bg-neutral-800 bg-opacity-50 shadow-lg shadow-indigo-600/40">
+    <div className="space-y-6 sm:space-y-8 text-white rounded-lg bg-neutral-800">
       {/* Creator Info Toggle */}
       <div className="flex items-center justify-between">
         <div>
@@ -1310,7 +1318,7 @@ export const TokenCreationForm = () => {
         </>
       )}
       <div className="mt-12">
-        <h3 className="text-xl font-medium text-white mb-4">
+        <h3 className="text-lg font-medium text-white mb-4">
           Revoke Authorities (Selected by Default)
         </h3>
         <p className="text-neutral-400 mb-6">
@@ -1523,7 +1531,7 @@ export const TokenCreationForm = () => {
     <>
       <form
         onSubmit={handleSubmit}
-        className="space-y-8 w-full max-w-[900px] mx-auto sm:mt-8 p-0 sm:p-6"
+        className="space-y-8 w-full max-w-[900px] mx-auto sm:mt-14 sm:mb-8 p-4 sm:p-10 border border-neutral-700 rounded-lg bg-neutral-800"
       >
         {!connected ? (
           <div className="text-center p-4 sm:p-8 bg-neutral-800 rounded-lg border border-neutral-700">
@@ -1552,7 +1560,7 @@ export const TokenCreationForm = () => {
 
             {renderStepContent()}
 
-            <div className="flex flex-col sm:flex-row justify-between sm:mt-8 pb-8 sm:pb-0 space-y-0 sm:space-y-0">
+            <div className="flex flex-col sm:flex-row justify-between sm:mt-8 sm:pb-0 space-y-0 sm:space-y-0">
               <div className="w-full sm:w-auto order-2 sm:order-1 mt-4 sm:mt-0">
                 {currentStep > 1 && (
                   <button
@@ -1641,7 +1649,7 @@ export const TokenCreationForm = () => {
                       </>
                     ) : (
                       <>
-                        <span className="font-bold">Create Token</span>
+                        <span className="font-bold text-lg">Create Token</span>
                         <svg
                           className="w-5 h-5"
                           fill="none"
