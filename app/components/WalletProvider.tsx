@@ -346,7 +346,7 @@ const WalletProvider: FC = () => {
             }
           `}</style>
           <div className="min-h-screen bg-neutral-900 text-white relative">
-            <header className="p-4 border-b border-neutral-700 relative z-[60]">
+            <header className="p-4 border-b border-neutral-700 relative z-[50]">
               <div className="max-w-7xl mx-auto">
                 <div className="flex justify-between items-center">
                   {/* Left section with menu, logo and nav */}
