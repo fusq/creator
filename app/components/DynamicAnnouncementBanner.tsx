@@ -86,13 +86,6 @@ const DynamicAnnouncementBanner = () => {
               <span className="text-neutral-900 text-xs">SEC</span>
             </div>
           </div>
-
-          <button
-            onClick={handleCreateNowClick}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-2 rounded-lg transition-colors duration-200 hidden sm:block"
-          >
-            Create Now!
-          </button>
         </div>
       </div>
     </div>
