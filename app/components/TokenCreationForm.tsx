@@ -128,7 +128,7 @@ const CreatedTokensList = ({ refreshTrigger }: { refreshTrigger: number }) => {
 
   return (
     <div className="w-full max-w-[900px] mx-auto p-0 sm:p-6">
-      <h2 className="text-xl sm:text-2xl font-semibold text-white mb-6 sm:mb-8">
+      <h2 className="text-xl sm:text-2xl font-semibold text-white mb-6 sm:mb-8 mt-12 sm:mt-0">
         Your Created Tokens
       </h2>
       <div className="space-y-4 sm:space-y-6">
@@ -361,10 +361,6 @@ export const TokenCreationForm = () => {
   const plausible = usePlausible();
 
   const nameInputRef = useRef<HTMLInputElement>(null);
-
-  const focusNameInput = () => {
-    nameInputRef.current?.focus();
-  };
 
   useEffect(() => {
     const newConnection = new Connection(

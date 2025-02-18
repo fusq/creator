@@ -17,11 +17,13 @@ import { AffiliatePage } from "./AffiliatePage";
 import Image from "next/image";
 import CreatePoolComponent from "./CreatePoolComponent";
 import DynamicAnnouncementBanner from "./DynamicAnnouncementBanner";
+import { Coins, Droplets, Menu } from "lucide-react";
 
 const WalletProvider: FC = () => {
   const [currentView, setCurrentView] = useState<
     "create" | "affiliate" | "createPool"
   >("create");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Use Helius RPC endpoint
   const endpoint =
@@ -340,80 +342,113 @@ const WalletProvider: FC = () => {
             }
           `}</style>
           <div className="min-h-screen bg-neutral-900 text-white">
-            {/* Dynamic Announcement Banner */}
             <DynamicAnnouncementBanner />
 
-            {/* Header */}
-            <header className="p-4 border-b border-neutral-800">
+            <header className="p-4 border-b border-neutral-800 relative">
               <div className="max-w-7xl mx-auto">
-                <div className="flex flex-col sm:flex-row justify-between items-center">
-                  {/* Website Name and Logo */}
-                  <div className="flex items-center mb-4 sm:mb-0">
-                    <Image
-                      src="/memefast.png"
-                      alt="MemeFast Logo"
-                      className="mr-2 sm:mr-4"
-                      width={40}
-                      height={40}
-                    />
-                    <div className="text-xl sm:text-2xl font-bold Lexend text-white">
-                      Meme
-                      <span className="text-indigo-400 font-medium">
-                        Fast.fun
-                      </span>
+                <div className="flex justify-between items-center">
+                  {/* Left section with menu and logo */}
+                  <div className="flex items-center gap-4">
+                    {/* Mobile Menu Button */}
+                    <button
+                      onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                      className="sm:hidden p-2 text-neutral-400 hover:text-white"
+                    >
+                      <Menu className="w-6 h-6" />
+                    </button>
+
+                    {/* Logo - Always Left Aligned */}
+                    <div className="flex items-center">
+                      <Image
+                        src="/memefast.png"
+                        alt="MemeFast Logo"
+                        className="mr-2"
+                        width={32}
+                        height={32}
+                      />
+                      <div className="text-lg sm:text-2xl font-bold Lexend text-white">
+                        Meme
+                        <span className="text-indigo-400 font-medium">
+                          Fast
+                        </span>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Navigation Menu - Updated with Create Pool button */}
-                  <nav className="mb-4 sm:mb-0">
+                  {/* Desktop Navigation */}
+                  <nav className="hidden sm:flex flex-1 justify-center">
                     <div className="flex space-x-2 sm:space-x-6">
                       <button
                         onClick={() => setCurrentView("create")}
-                        className={`px-2 sm:px-4 py-2 text-base font-medium rounded-md transition-colors ${
+                        className={`px-2 sm:px-4 py-2 text-base font-medium rounded-md transition-colors flex items-center gap-2 ${
                           currentView === "create"
                             ? "text-indigo-400"
                             : "text-neutral-400 hover:text-indigo-700"
                         }`}
                       >
+                        <Coins className="w-4 h-4" />
                         Create Token
                       </button>
                       <a
                         href="https://raydium.io/liquidity/create-pool/"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="px-2 sm:px-4 py-2 text-base font-medium rounded-md transition-colors text-neutral-400 hover:text-indigo-700"
+                        className="px-2 sm:px-4 py-2 text-base font-medium rounded-md transition-colors text-neutral-400 hover:text-indigo-700 flex items-center gap-2"
                       >
+                        <Droplets className="w-4 h-4" />
                         Create Liquidity
                       </a>
-                      <button
-                        onClick={() => setCurrentView("createPool")}
-                        className={`px-2 sm:px-4 py-2 text-base font-medium rounded-md transition-colors hidden ${
-                          currentView === "createPool"
-                            ? "text-indigo-400"
-                            : "text-neutral-400 hover:text-indigo-700"
-                        }`}
-                      >
-                        Create Liquidity
-                      </button>
-                      <button
-                        onClick={() => setCurrentView("affiliate")}
-                        className={`px-2 sm:px-4 py-2 text-base font-medium rounded-md transition-colors hidden ${
-                          currentView === "affiliate"
-                            ? "text-indigo-400"
-                            : "text-neutral-400 hover:text-indigo-700"
-                        }`}
-                      >
-                        Become an Affiliate
-                      </button>
                     </div>
                   </nav>
 
-                  {/* Wallet Section */}
-                  <div className="flex items-center space-x-2 sm:space-x-4">
-                    <WalletBalance />
-                    <WalletMultiButton />
+                  {/* Wallet Section - Right */}
+                  <div className="flex items-center justify-end">
+                    {/* Show balance only on desktop */}
+                    <div className="hidden sm:block">
+                      <WalletBalance />
+                    </div>
+                    <div className="scale-90 sm:scale-100 origin-right">
+                      <WalletMultiButton />
+                    </div>
                   </div>
                 </div>
+
+                {/* Mobile Menu Dropdown */}
+                {isMobileMenuOpen && (
+                  <div className="sm:hidden absolute top-full left-0 right-0 bg-neutral-900 border-b border-neutral-800 z-50">
+                    <div className="p-4 flex flex-col space-y-4">
+                      {/* Balance display in mobile menu */}
+                      <div className="px-4 py-3 bg-neutral-800 rounded-md">
+                        <WalletBalance />
+                      </div>
+
+                      <button
+                        onClick={() => {
+                          setCurrentView("create");
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className={`px-4 py-3 text-base font-medium rounded-md transition-colors flex items-center gap-2 ${
+                          currentView === "create"
+                            ? "bg-indigo-600 text-white"
+                            : "text-neutral-400 hover:bg-neutral-800"
+                        }`}
+                      >
+                        <Coins className="w-5 h-5" />
+                        Create Token
+                      </button>
+                      <a
+                        href="https://raydium.io/liquidity/create-pool/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-4 py-3 text-base font-medium rounded-md transition-colors text-neutral-400 hover:bg-neutral-800 flex items-center gap-2"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <Droplets className="w-5 h-5" />
+                        Create Liquidity
+                      </a>
+                    </div>
+                  </div>
+                )}
               </div>
             </header>
 

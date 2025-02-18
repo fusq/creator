@@ -37,50 +37,33 @@ const DynamicAnnouncementBanner = () => {
     return () => clearInterval(timer);
   }, []);
 
-  const progressPercentage = () => {
-    const now = new Date();
-    const totalSecondsInDay = 24 * 60 * 60;
-    const secondsPassed =
-      now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
-    return ((totalSecondsInDay - secondsPassed) / totalSecondsInDay) * 100;
-  };
-
-  const handleCreateNowClick = () => {
-    // Find the name input and focus it
-    const element = document.getElementById("name");
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth", block: "center" });
-      element.focus();
-    }
-  };
-
   return (
     <div className="relative bg-indigo-300">
       {/* Progress bar */}
 
-      <div className="container mx-auto px-4 py-3">
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+      <div className="container mx-auto px-4 py-3 text-sm sm:text-base">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-4">
           <div className="text-neutral-900 font-bold">
             Create your token for only 0.1 SOL - Offer ends in:
           </div>
 
           <div className="flex items-center gap-4">
             <div className="flex flex-col items-center">
-              <span className="text-neutral-900 font-bold text-xl">
+              <span className="text-neutral-900 font-bold text-base sm:text-lg">
                 {timeLeft.hours}
               </span>
               <span className="text-neutral-900 text-xs">HRS</span>
             </div>
             <span className="text-neutral-900 text-xl">:</span>
             <div className="flex flex-col items-center">
-              <span className="text-neutral-900 font-bold text-xl">
+              <span className="text-neutral-900 font-bold text-base sm:text-lg">
                 {timeLeft.minutes}
               </span>
               <span className="text-neutral-900 text-xs">MIN</span>
             </div>
             <span className="text-neutral-900 text-xl">:</span>
             <div className="flex flex-col items-center">
-              <span className="text-neutral-900 font-bold text-xl">
+              <span className="text-neutral-900 font-bold text-base sm:text-lg">
                 {timeLeft.seconds}
               </span>
               <span className="text-neutral-900 text-xs">SEC</span>

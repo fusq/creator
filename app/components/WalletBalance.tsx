@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import Image from "next/image";
 
 export const WalletBalance = () => {
   const { publicKey, connected } = useWallet();
@@ -30,7 +31,7 @@ export const WalletBalance = () => {
     }
 
     getBalance();
-    const intervalId = setInterval(getBalance, 10000); // Update every 10 seconds
+    const intervalId = setInterval(getBalance, 10000);
 
     return () => clearInterval(intervalId);
   }, [publicKey, connection, connected]);
@@ -40,8 +41,16 @@ export const WalletBalance = () => {
   if (balance === null) return null;
 
   return (
-    <span className="mr-2 px-4 py-1 bg-neutral-800 text-neutral-300 rounded-md text-sm h-12 flex items-center">
-      {balance.toFixed(2)} SOL
-    </span>
+    <div className="mr-4 sm:px-4 py-1 bg-neutral-800 text-neutral-300 rounded-md text-sm sm:h-12 flex items-center gap-2">
+      <span>{balance.toFixed(2)}</span>
+      <div className="w-4 h-4 relative">
+        <Image
+          src="/solana-sol-logo.svg"
+          alt="SOL"
+          fill
+          className="object-contain"
+        />
+      </div>
+    </div>
   );
 };
