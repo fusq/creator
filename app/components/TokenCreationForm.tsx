@@ -919,6 +919,16 @@ export const TokenCreationForm = () => {
       // Send Plausible event for successful token creation
       plausible("create");
 
+      // Google Ads conversion tracking
+      if (typeof window !== "undefined" && (window as any).gtag) {
+        (window as any).gtag("event", "conversion", {
+          send_to: "AW-764344438/ihcMCNLz258aEPbwu-wC",
+          value: 1.0,
+          currency: "EUR",
+          transaction_id: txid,
+        });
+      }
+
       // Store token info in localStorage
       const existingTokens = JSON.parse(
         localStorage.getItem("createdTokens") || "[]"
