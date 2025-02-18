@@ -103,11 +103,12 @@ const WalletProvider: FC = () => {
             .wallet-adapter-dropdown {
               position: relative;
               display: inline-block;
+              z-index: 9999;
             }
 
             .wallet-adapter-dropdown-list {
               position: absolute;
-              z-index: 99;
+              z-index: 99999;
               display: grid;
               grid-template-rows: 1fr;
               grid-row-gap: 10px;
@@ -131,6 +132,7 @@ const WalletProvider: FC = () => {
               opacity: 1;
               visibility: visible;
               transform: translateY(10px);
+              z-index: 99999;
             }
 
             .wallet-adapter-dropdown-list-item {
@@ -150,10 +152,12 @@ const WalletProvider: FC = () => {
               font-weight: 600;
               height: 37px;
               color: #fff;
+              z-index: 9999;
             }
 
             .wallet-adapter-dropdown-list-item:not([disabled]):hover {
               background-color: #1a1f2e;
+              z-index: 9999;
             }
 
             .wallet-adapter-modal-collapse-button svg {
@@ -341,8 +345,8 @@ const WalletProvider: FC = () => {
               color: #fff;
             }
           `}</style>
-          <div className="min-h-screen bg-neutral-900 text-white">
-            <header className="p-4 border-b border-neutral-700 relative">
+          <div className="min-h-screen bg-neutral-900 text-white relative">
+            <header className="p-4 border-b border-neutral-700 relative z-[60]">
               <div className="max-w-7xl mx-auto">
                 <div className="flex justify-between items-center">
                   {/* Left section with menu, logo and nav */}
