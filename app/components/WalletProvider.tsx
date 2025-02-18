@@ -344,7 +344,7 @@ const WalletProvider: FC = () => {
           <div className="min-h-screen bg-neutral-900 text-white">
             <DynamicAnnouncementBanner />
 
-            <header className="p-4 border-b border-neutral-800 relative">
+            <header className="p-2 sm:p-4 border-b border-neutral-800 relative">
               <div className="max-w-7xl mx-auto">
                 <div className="flex justify-between items-center">
                   {/* Left section with menu and logo */}
