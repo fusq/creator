@@ -15,11 +15,12 @@ import { WalletBalance } from "./WalletBalance";
 import { TokenCreationForm } from "./TokenCreationForm";
 import { AffiliatePage } from "./AffiliatePage";
 import Image from "next/image";
+import CreatePoolComponent from "./CreatePoolComponent";
 
 const WalletProvider: FC = () => {
-  const [currentView, setCurrentView] = useState<"create" | "affiliate">(
-    "create"
-  );
+  const [currentView, setCurrentView] = useState<
+    "create" | "affiliate" | "createPool"
+  >("create");
 
   // Use Helius RPC endpoint
   const endpoint =
@@ -337,7 +338,7 @@ const WalletProvider: FC = () => {
               color: #fff;
             }
           `}</style>
-          <div className="min-h-screen bg-neutral-900">
+          <div className="min-h-screen bg-neutral-900 text-white">
             {/* Announcement Banner */}
             <div className="bg-indigo-600 text-white text-center py-2 px-4 text-xs sm:text-sm font-medium">
               CREATE YOUR TOKEN FOR ONLY 0.1 SOL UNTIL FEB 28TH
@@ -364,7 +365,7 @@ const WalletProvider: FC = () => {
                     </div>
                   </div>
 
-                  {/* Navigation Menu - Centered on desktop */}
+                  {/* Navigation Menu - Updated with Create Pool button */}
                   <nav className="mb-4 sm:mb-0">
                     <div className="flex space-x-2 sm:space-x-6">
                       <button
@@ -377,14 +378,21 @@ const WalletProvider: FC = () => {
                       >
                         Create Token
                       </button>
+                      <a
+                        href="https://raydium.io/liquidity/create-pool/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-2 sm:px-4 py-2 text-base font-medium rounded-md transition-colors text-neutral-400 hover:text-indigo-700"
+                      >
+                        Create Liquidity
+                      </a>
                       <button
-                        onClick={() =>
-                          window.open(
-                            "https://raydium.io/liquidity/create-pool/",
-                            "_blank"
-                          )
-                        }
-                        className={`px-2 sm:px-4 py-2 text-base font-medium rounded-md transition-colors text-neutral-400 hover:text-indigo-700`}
+                        onClick={() => setCurrentView("createPool")}
+                        className={`px-2 sm:px-4 py-2 text-base font-medium rounded-md transition-colors hidden ${
+                          currentView === "createPool"
+                            ? "text-indigo-400"
+                            : "text-neutral-400 hover:text-indigo-700"
+                        }`}
                       >
                         Create Liquidity
                       </button>
@@ -410,22 +418,22 @@ const WalletProvider: FC = () => {
               </div>
             </header>
 
-            <main className="flex flex-col items-center justify-center pt-8 sm:pt-16 px-4 sm:px-0">
-              {currentView === "create" ? (
+            <main className="flex-1 flex flex-col items-center justify-center px-4 sm:px-0 pt-8 sm:pt-16">
+              {currentView === "create" && (
                 <>
                   <h1 className="text-2xl sm:text-4xl font-bold mb-2 text-white bg-indigo-600 px-4 py-2 rounded-lg Lexend text-center">
                     Create Your Own Token FAST ⚡
                   </h1>
-                  <p className="text-base sm:text-lg text-neutral-400 text-center mb-8">
+                  <p className="text-base sm:text-lg text-neutral-400 text-center mb-6 sm:mb-0">
                     Launch your own token on Solana in seconds. No coding
                     required.
                   </p>
                   <TokenCreationForm />
                   <GuideFaq />
                 </>
-              ) : (
-                <AffiliatePage />
               )}
+              {currentView === "affiliate" && <AffiliatePage />}
+              {currentView === "createPool" && <CreatePoolComponent />}
 
               {/* Footer */}
               <footer className="w-full bg-neutral-800 border-t border-neutral-700 py-8 sm:py-12 mt-16 rounded-t sm:rounded-none border-x sm:border-x-0">

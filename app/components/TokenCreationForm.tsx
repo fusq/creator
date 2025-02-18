@@ -31,6 +31,7 @@ import { createClient } from "@supabase/supabase-js";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { ToastContainer, toast as toastify } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { usePlausible } from "next-plausible";
 
 interface TokenMetadata {
   name: string;
@@ -339,6 +340,8 @@ export const TokenCreationForm = () => {
   const [affiliateWallet, setAffiliateWallet] = useState<string | null>(null);
 
   const [refreshTokenList, setRefreshTokenList] = useState(0);
+
+  const plausible = usePlausible();
 
   useEffect(() => {
     const newConnection = new Connection(
@@ -912,6 +915,9 @@ export const TokenCreationForm = () => {
       };
 
       setCreatedTokenInfo(tokenInfo);
+
+      // Send Plausible event for successful token creation
+      plausible("create");
 
       // Store token info in localStorage
       const existingTokens = JSON.parse(
