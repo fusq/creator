@@ -8,6 +8,23 @@ import {
   PublicKey,
   LAMPORTS_PER_SOL,
 } from "@solana/web3.js";
+type GtagFunction = (
+  command: string,
+  action: string,
+  params: {
+    send_to: string;
+    value: number;
+    currency: string;
+    transaction_id: string;
+    event_callback?: () => void;
+  }
+) => void;
+// Extend Window interface
+declare global {
+  interface Window {
+    gtag: GtagFunction;
+  }
+}
 import Image from "next/image";
 import {
   Metaplex,
@@ -919,9 +936,8 @@ export const TokenCreationForm = () => {
       // Send Plausible event for successful token creation
       plausible("create");
 
-      // Google Ads conversion tracking
-      if (typeof window !== "undefined" && (window as any).gtag) {
-        (window as any).gtag("event", "conversion", {
+      if (typeof window !== "undefined" && window.gtag) {
+        window.gtag("event", "conversion", {
           send_to: "AW-764344438/ihcMCNLz258aEPbwu-wC",
           value: 1.0,
           currency: "EUR",
