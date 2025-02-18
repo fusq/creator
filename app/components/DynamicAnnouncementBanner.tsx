@@ -38,7 +38,7 @@ const DynamicAnnouncementBanner = () => {
   }, []);
 
   return (
-    <div className="relative bg-indigo-300 z-10">
+    <div className="relative bg-indigo-300">
       {/* Progress bar */}
 
       <div className="container mx-auto px-4 py-3 text-sm sm:text-base">
