@@ -16,6 +16,7 @@ import { TokenCreationForm } from "./TokenCreationForm";
 import { AffiliatePage } from "./AffiliatePage";
 import Image from "next/image";
 import CreatePoolComponent from "./CreatePoolComponent";
+import DynamicAnnouncementBanner from "./DynamicAnnouncementBanner";
 
 const WalletProvider: FC = () => {
   const [currentView, setCurrentView] = useState<
@@ -339,10 +340,8 @@ const WalletProvider: FC = () => {
             }
           `}</style>
           <div className="min-h-screen bg-neutral-900 text-white">
-            {/* Announcement Banner */}
-            <div className="bg-indigo-600 text-white text-center py-2 px-4 text-xs sm:text-sm font-medium">
-              CREATE YOUR TOKEN FOR ONLY 0.1 SOL UNTIL FEB 28TH
-            </div>
+            {/* Dynamic Announcement Banner */}
+            <DynamicAnnouncementBanner />
 
             {/* Header */}
             <header className="p-4 border-b border-neutral-800">

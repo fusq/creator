@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
 import {
   Connection,
@@ -359,6 +359,12 @@ export const TokenCreationForm = () => {
   const [refreshTokenList, setRefreshTokenList] = useState(0);
 
   const plausible = usePlausible();
+
+  const nameInputRef = useRef<HTMLInputElement>(null);
+
+  const focusNameInput = () => {
+    nameInputRef.current?.focus();
+  };
 
   useEffect(() => {
     const newConnection = new Connection(
@@ -1004,6 +1010,7 @@ export const TokenCreationForm = () => {
             Token Name
           </label>
           <input
+            ref={nameInputRef}
             type="text"
             id="name"
             name="name"
