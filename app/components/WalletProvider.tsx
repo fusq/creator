@@ -342,64 +342,65 @@ const WalletProvider: FC = () => {
             }
           `}</style>
           <div className="min-h-screen bg-neutral-900 text-white">
-            <DynamicAnnouncementBanner />
-
-            <header className="p-2 sm:p-4 border-b border-neutral-800 relative">
+            <header className="p-4 border-b border-neutral-700 relative">
               <div className="max-w-7xl mx-auto">
                 <div className="flex justify-between items-center">
-                  {/* Left section with menu and logo */}
-                  <div className="flex items-center gap-4">
+                  {/* Left section with menu, logo and nav */}
+                  <div className="flex items-center">
                     {/* Mobile Menu Button */}
                     <button
                       onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                      className="sm:hidden p-2 text-neutral-400 hover:text-white"
+                      className="sm:hidden p-2 text-neutral-400 hover:text-white mr-2"
                     >
                       <Menu className="w-6 h-6" />
                     </button>
 
-                    {/* Logo - Always Left Aligned */}
-                    <div className="flex items-center">
-                      <Image
-                        src="/memefast.png"
-                        alt="MemeFast Logo"
-                        className="mr-2"
-                        width={32}
-                        height={32}
-                      />
-                      <div className="text-lg sm:text-2xl font-bold Lexend text-white">
-                        Meme
-                        <span className="text-indigo-400 font-medium">
-                          Fast
-                        </span>
+                    {/* Logo and Navigation Flex Container */}
+                    <div className="flex items-center gap-12">
+                      {/* Logo */}
+                      <div className="flex items-center">
+                        <Image
+                          src="/memefast.png"
+                          alt="MemeFast Logo"
+                          className="mr-2 sm:mr-4"
+                          width={40}
+                          height={40}
+                        />
+                        <div className="text-lg sm:text-2xl font-bold Lexend text-white">
+                          Meme
+                          <span className="text-indigo-400 font-medium">
+                            Fast
+                          </span>
+                        </div>
                       </div>
+
+                      {/* Desktop Navigation - Now Next to Logo */}
+                      <nav className="hidden sm:flex items-center">
+                        <div className="flex space-x-2 sm:space-x-6">
+                          <button
+                            onClick={() => setCurrentView("create")}
+                            className={`px-2 sm:px-4 py-2 text-base font-medium rounded-md transition-colors flex items-center gap-2 ${
+                              currentView === "create"
+                                ? "text-indigo-500 hover:text-indigo-500"
+                                : "text-neutral-400 hover:text-indigo-400"
+                            }`}
+                          >
+                            <Coins className="w-4 h-4" />
+                            Create Token
+                          </button>
+                          <a
+                            href="https://raydium.io/liquidity/create-pool/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-2 sm:px-4 py-2 text-base font-medium rounded-md transition-colors text-neutral-400 hover:text-indigo-400 flex items-center gap-2"
+                          >
+                            <Droplets className="w-4 h-4" />
+                            Create Liquidity
+                          </a>
+                        </div>
+                      </nav>
                     </div>
                   </div>
-
-                  {/* Desktop Navigation */}
-                  <nav className="hidden sm:flex flex-1 justify-center">
-                    <div className="flex space-x-2 sm:space-x-6">
-                      <button
-                        onClick={() => setCurrentView("create")}
-                        className={`px-2 sm:px-4 py-2 text-base font-medium rounded-md transition-colors flex items-center gap-2 ${
-                          currentView === "create"
-                            ? "text-indigo-400"
-                            : "text-neutral-400 hover:text-indigo-700"
-                        }`}
-                      >
-                        <Coins className="w-4 h-4" />
-                        Create Token
-                      </button>
-                      <a
-                        href="https://raydium.io/liquidity/create-pool/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-2 sm:px-4 py-2 text-base font-medium rounded-md transition-colors text-neutral-400 hover:text-indigo-700 flex items-center gap-2"
-                      >
-                        <Droplets className="w-4 h-4" />
-                        Create Liquidity
-                      </a>
-                    </div>
-                  </nav>
 
                   {/* Wallet Section - Right */}
                   <div className="flex items-center justify-end">
@@ -451,8 +452,8 @@ const WalletProvider: FC = () => {
                 )}
               </div>
             </header>
-
-            <main className="flex-1 flex flex-col items-center justify-center px-4 sm:px-0 pt-8 sm:pt-16">
+            <DynamicAnnouncementBanner />
+            <main className="flex-1 flex flex-col items-center justify-center px-4 sm:px-0 pt-8 sm:pt-16 bg-neutral-900">
               {currentView === "create" && (
                 <>
                   <h1 className="text-2xl sm:text-4xl font-bold mb-2 text-white bg-indigo-600 px-4 py-2 rounded-lg Lexend text-center">
