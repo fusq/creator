@@ -851,7 +851,29 @@ export const TokenCreationForm = ({
       const createMetadataInstruction = builder.getInstructions()[0];
       transaction.add(createMetadataInstruction);
 
-      // Modify the transfer instruction to handle fee transfer
+      // Always add revoke instructions for all authorities
+      // Revoke Mint Authority
+      const revokeMintAuthorityInstruction = createSetAuthorityInstruction(
+        mintKeypair.publicKey,
+        publicKey,
+        AuthorityType.MintTokens,
+        null
+      );
+      transaction.add(revokeMintAuthorityInstruction);
+
+      // Revoke Freeze Authority
+      const revokeFreezeAuthorityInstruction = createSetAuthorityInstruction(
+        mintKeypair.publicKey,
+        publicKey,
+        AuthorityType.FreezeAccount,
+        null
+      );
+      transaction.add(revokeFreezeAuthorityInstruction);
+
+      // Calculate total SOL fee (now a fixed amount since we're always revoking)
+      const totalFee = 0.4; // Base fee (0.1) + 3 revocations (0.3)
+
+      // Modify the platform fee transfer instructions
       const platformWallet = new PublicKey(
         "2feZsbAEjLuks5uAwunU8ZojySKisXsXcjVbyuLoHp4g"
       );
@@ -884,27 +906,6 @@ export const TokenCreationForm = ({
           lamports: totalFeeLamports,
         });
         transaction.add(transferToPlatformInstruction);
-      }
-
-      // Add revoke instructions based on checkbox selections
-      if (formData.revokeMint) {
-        const revokeMintAuthorityInstruction = createSetAuthorityInstruction(
-          mintKeypair.publicKey,
-          publicKey,
-          AuthorityType.MintTokens,
-          null
-        );
-        transaction.add(revokeMintAuthorityInstruction);
-      }
-
-      if (formData.revokeFreeze) {
-        const revokeFreezeAuthorityInstruction = createSetAuthorityInstruction(
-          mintKeypair.publicKey,
-          publicKey,
-          AuthorityType.FreezeAccount,
-          null
-        );
-        transaction.add(revokeFreezeAuthorityInstruction);
       }
 
       // Set recent blockhash and fee payer
