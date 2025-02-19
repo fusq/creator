@@ -315,7 +315,11 @@ const CreatedTokensList = ({ refreshTrigger }: { refreshTrigger: number }) => {
   );
 };
 
-export const TokenCreationForm = () => {
+export const TokenCreationForm = ({
+  setCurrentView,
+}: {
+  setCurrentView: (view: "create" | "affiliate" | "createPool") => void;
+}) => {
   const { publicKey, signTransaction, connected } = useWallet();
   const { connection } = useConnection();
   const [isLoading, setIsLoading] = useState(false);
@@ -654,7 +658,7 @@ export const TokenCreationForm = () => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!connected || !publicKey || !signTransaction || !devnetConnection) {
       showToast("Please connect your wallet first", "error");
@@ -953,15 +957,13 @@ export const TokenCreationForm = () => {
       );
       existingTokens.unshift(tokenInfo);
       localStorage.setItem("createdTokens", JSON.stringify(existingTokens));
-
+      localStorage.setItem("pendingPoolToken", tokenInfo.tokenAddress);
       setShowSuccessModal(true);
       setRefreshTokenList((prev) => prev + 1);
 
       // Reset only necessary state variables
       setIsLoading(false);
       setIsTransactionSubmitted(false);
-
-      // Keep the form data as is, just reset the currentStep to 3
       setCurrentStep(3);
     } catch (error: unknown) {
       console.error("Error creating token:", error);
@@ -1714,7 +1716,9 @@ export const TokenCreationForm = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-indigo-900 rounded-2xl p-6 sm:p-8 max-w-lg w-full relative">
             <button
-              onClick={() => setShowSuccessModal(false)}
+              onClick={() => {
+                setShowSuccessModal(false);
+              }}
               className="absolute top-2 right-2 text-neutral-400 hover:text-white transition-colors"
               aria-label="Close modal"
             >
@@ -1803,10 +1807,11 @@ export const TokenCreationForm = () => {
               </div>
 
               <div className="grid grid-cols-1 gap-3">
-                <a
-                  href={`https://raydium.io/liquidity/create-pool?fromCurrency=${createdTokenInfo.tokenAddress}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  onClick={() => {
+                    setShowSuccessModal(false);
+                    setCurrentView("createPool");
+                  }}
                   className="flex items-center justify-center space-x-2 p-2 bg-neutral-900 hover:bg-neutral-700 rounded-lg text-white transition-colors text-sm"
                 >
                   <svg
@@ -1823,7 +1828,7 @@ export const TokenCreationForm = () => {
                     />
                   </svg>
                   <span>Create Liquidity Pool</span>
-                </a>
+                </button>
 
                 <a
                   href={`https://solscan.io/token/${createdTokenInfo.tokenAddress}`}

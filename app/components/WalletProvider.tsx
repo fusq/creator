@@ -18,6 +18,7 @@ import Image from "next/image";
 import CreatePoolComponent from "./CreatePoolComponent";
 import DynamicAnnouncementBanner from "./DynamicAnnouncementBanner";
 import { Coins, Droplets, Menu } from "lucide-react";
+import { useEffect } from "react";
 
 const WalletProvider: FC = () => {
   const [currentView, setCurrentView] = useState<
@@ -392,11 +393,22 @@ const WalletProvider: FC = () => {
                             <Coins className="w-4 h-4" />
                             Create Token
                           </button>
+                          <button
+                            onClick={() => setCurrentView("createPool")}
+                            className={`px-2 sm:px-4 py-2 text-base font-medium rounded-md transition-colors flex items-center gap-2 ${
+                              currentView === "createPool"
+                                ? "text-indigo-500 hover:text-indigo-500"
+                                : "text-neutral-400 hover:text-indigo-400"
+                            }`}
+                          >
+                            <Droplets className="w-4 h-4" />
+                            Manage Liquidity
+                          </button>
                           <a
                             href="https://raydium.io/liquidity/create-pool/"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="px-2 sm:px-4 py-2 text-base font-medium rounded-md transition-colors text-neutral-400 hover:text-indigo-400 flex items-center gap-2"
+                            className="px-2 sm:px-4 py-2 text-base font-medium rounded-md transition-colors text-neutral-400 hover:text-indigo-400 flex items-center gap-2 hidden"
                           >
                             <Droplets className="w-4 h-4" />
                             Create Liquidity
@@ -441,11 +453,25 @@ const WalletProvider: FC = () => {
                         <Coins className="w-5 h-5" />
                         Create Token
                       </button>
+                      <button
+                        onClick={() => {
+                          setCurrentView("createPool");
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className={`px-4 py-3 text-base font-medium rounded-md transition-colors flex items-center gap-2 ${
+                          currentView === "createPool"
+                            ? "bg-indigo-600 text-white"
+                            : "text-neutral-400 hover:bg-neutral-800"
+                        }`}
+                      >
+                        <Droplets className="w-5 h-5" />
+                        Manage Liquidity
+                      </button>
                       <a
                         href="https://raydium.io/liquidity/create-pool/"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="px-4 py-3 text-base font-medium rounded-md transition-colors text-neutral-400 hover:bg-neutral-800 flex items-center gap-2"
+                        className="px-4 py-3 text-base font-medium rounded-md transition-colors text-neutral-400 hover:bg-neutral-800 flex items-center gap-2 hidden"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         <Droplets className="w-5 h-5" />
@@ -467,12 +493,18 @@ const WalletProvider: FC = () => {
                     Launch your own token on Solana in seconds. No coding
                     required.
                   </p>
-                  <TokenCreationForm />
+                  <TokenCreationForm setCurrentView={setCurrentView} />
                   <GuideFaq />
                 </>
               )}
               {currentView === "affiliate" && <AffiliatePage />}
-              {currentView === "createPool" && <CreatePoolComponent />}
+              {currentView === "createPool" && (
+                <CreatePoolComponent
+                  initialTokenAddress={
+                    localStorage.getItem("pendingPoolToken") || undefined
+                  }
+                />
+              )}
 
               {/* Footer */}
               <footer className="w-full bg-neutral-800 border-t border-neutral-700 py-8 sm:py-12 mt-16 rounded-t sm:rounded-none border-x sm:border-x-0">
