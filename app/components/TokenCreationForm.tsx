@@ -90,7 +90,13 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-const CreatedTokensList = ({ refreshTrigger }: { refreshTrigger: number }) => {
+const CreatedTokensList = ({
+  refreshTrigger,
+  setCurrentView,
+}: {
+  refreshTrigger: number;
+  setCurrentView: (view: "create" | "affiliate" | "createPool") => void;
+}) => {
   const [tokens, setTokens] = useState<TokenInfo[]>([]);
   const [copySuccess, setCopySuccess] = useState<string | null>(null);
 
@@ -236,10 +242,11 @@ const CreatedTokensList = ({ refreshTrigger }: { refreshTrigger: number }) => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4">
-              <a
-                href={`https://raydium.io/liquidity/create-pool?fromCurrency=${token.tokenAddress}`}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={() => {
+                  localStorage.setItem("pendingPoolToken", token.tokenAddress);
+                  setCurrentView("createPool");
+                }}
                 className="flex items-center justify-center space-x-2 p-3 bg-neutral-900 hover:bg-neutral-700 rounded-lg text-white transition-colors"
               >
                 <svg
@@ -256,7 +263,7 @@ const CreatedTokensList = ({ refreshTrigger }: { refreshTrigger: number }) => {
                   />
                 </svg>
                 <span>Create Liquidity Pool</span>
-              </a>
+              </button>
 
               <a
                 href={`https://solscan.io/token/${token.tokenAddress}`}
@@ -1890,7 +1897,10 @@ export const TokenCreationForm = ({
       )}
 
       {/* Modify the CreatedTokensList component call */}
-      <CreatedTokensList refreshTrigger={refreshTokenList} />
+      <CreatedTokensList
+        refreshTrigger={refreshTokenList}
+        setCurrentView={setCurrentView}
+      />
 
       <ToastContainer
         position="bottom-right"
