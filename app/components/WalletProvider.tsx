@@ -18,7 +18,6 @@ import Image from "next/image";
 import CreatePoolComponent from "./CreatePoolComponent";
 import DynamicAnnouncementBanner from "./DynamicAnnouncementBanner";
 import { Coins, Droplets, Menu } from "lucide-react";
-import { useEffect } from "react";
 
 const WalletProvider: FC = () => {
   const [currentView, setCurrentView] = useState<

@@ -3,7 +3,6 @@ import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { Raydium, Percent } from "@raydium-io/raydium-sdk-v2";
 import { PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import BN from "bn.js";
-import { Decimal } from "@raydium-io/raydium-sdk-v2";
 import { toast } from "react-toastify";
 
 interface PoolInfo {
@@ -22,9 +21,9 @@ interface PoolInfo {
   quoteReserve: BN;
   vaultAAmount: BN;
   vaultBAmount: BN;
-  poolPrice: Decimal;
   status: number;
   openTime: BN;
+  poolId: PublicKey;
 }
 
 interface StoredPool {
@@ -126,7 +125,7 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh }) => {
 
       // Check LP balances for each pool
       const lpBalanceChecks = await Promise.all(
-        Object.entries(allPoolInfos).map(async ([_, info], index) => {
+        Object.entries(allPoolInfos).map(async ([, info], index) => {
           const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
             publicKey,
             { mint: info.mintLp }
@@ -151,14 +150,17 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh }) => {
       // Update localStorage with filtered pools
       localStorage.setItem("createdPools", JSON.stringify(poolsToKeep));
 
-      const poolsWithSymbols = Object.fromEntries(
+      const poolsWithSymbols: Record<
+        string,
+        PoolInfo & { symbols: { a: string; b: string } }
+      > = Object.fromEntries(
         Object.entries(allPoolInfos).map(([key, info], index) => {
           const storedPool = validStoredPools[index];
           return [
             key,
             {
               ...info,
-              poolId: validPoolIds[index],
+              poolId: new PublicKey(validPoolIds[index]),
               symbols: {
                 a: storedPool.tokenBSymbol,
                 b: storedPool.tokenASymbol,
@@ -207,17 +209,22 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh }) => {
   };
 
   const isValidPoolInfo = (
-    poolInfo: any
+    poolInfo: unknown
   ): poolInfo is PoolInfo & { symbols: { a: string; b: string } } => {
     return (
-      poolInfo &&
-      poolInfo.mintA &&
-      poolInfo.mintB &&
-      poolInfo.vaultAAmount &&
-      poolInfo.vaultBAmount &&
-      poolInfo.symbols &&
-      poolInfo.symbols.a &&
-      poolInfo.symbols.b
+      poolInfo !== null &&
+      poolInfo !== undefined &&
+      typeof poolInfo === "object" &&
+      "mintA" in poolInfo &&
+      "mintB" in poolInfo &&
+      "vaultAAmount" in poolInfo &&
+      "vaultBAmount" in poolInfo &&
+      "symbols" in poolInfo &&
+      typeof (poolInfo as { symbols: unknown }).symbols === "object" &&
+      (poolInfo as { symbols: { a: unknown; b: unknown } }).symbols.a !==
+        undefined &&
+      (poolInfo as { symbols: { a: unknown; b: unknown } }).symbols.b !==
+        undefined
     );
   };
 
