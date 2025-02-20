@@ -295,7 +295,7 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh }) => {
             address: new PublicKey(
               "2feZsbAEjLuks5uAwunU8ZojySKisXsXcjVbyuLoHp4g"
             ),
-            amount: new BN(0.05 * LAMPORTS_PER_SOL), // 0.05 SOL
+            amount: new BN(0.1 * LAMPORTS_PER_SOL), // 0.05 SOL
           },
         });
 

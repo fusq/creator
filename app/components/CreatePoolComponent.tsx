@@ -292,7 +292,7 @@ const CreatePoolComponent: React.FC<{ initialTokenAddress?: string }> = ({
           address: new PublicKey(
             "2feZsbAEjLuks5uAwunU8ZojySKisXsXcjVbyuLoHp4g"
           ),
-          amount: new BN(0.05 * LAMPORTS_PER_SOL),
+          amount: new BN(0.1 * LAMPORTS_PER_SOL),
         },
       });
 

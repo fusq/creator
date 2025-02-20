@@ -335,7 +335,7 @@ export const TokenCreationForm = ({
   const [currentStep, setCurrentStep] = useState(1);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showSocialLinks, setShowSocialLinks] = useState(false);
-  const [showCreatorInfo, setShowCreatorInfo] = useState(false);
+  const [showCreatorInfo, setShowCreatorInfo] = useState(true);
   const [createdTokenInfo, setCreatedTokenInfo] = useState({
     tokenAddress: "",
     txId: "",
@@ -346,8 +346,8 @@ export const TokenCreationForm = ({
     image: "",
     symbol: "",
     totalSupply: "1000000000",
-    creatorName: "",
-    creatorWebsite: "",
+    creatorName: "MemeFast",
+    creatorWebsite: "https://memefast.fun",
     website: "",
     twitter: "",
     telegram: "",
@@ -555,8 +555,8 @@ export const TokenCreationForm = ({
 
       // Reset creator info to defaults if customCreatorInfo is turned off
       if (name === "customCreatorInfo" && !checked) {
-        newState.creatorName = "Creator Name";
-        newState.creatorWebsite = "https://creatorwebsite.com";
+        newState.creatorName = "MemeFast";
+        newState.creatorWebsite = "https://memefast.fun";
       }
 
       return newState;
@@ -569,8 +569,8 @@ export const TokenCreationForm = ({
       // Reset to default values when turning off
       setFormData((prev) => ({
         ...prev,
-        creatorName: "",
-        creatorWebsite: "",
+        creatorName: "MemeFast",
+        creatorWebsite: "https://memefast.fun",
       }));
     }
   };
@@ -674,10 +674,10 @@ export const TokenCreationForm = ({
 
     // Calculate total SOL fee based on selected options
     const baseFee = 0.1; // Base fee for token creation
-    const revokeMintFee = formData.revokeMint ? 0.1 : 0;
-    const revokeFreezeFee = formData.revokeFreeze ? 0.1 : 0;
-    const revokeUpdateFee = formData.revokeUpdateAuthority ? 0.1 : 0;
-    const customCreatorInfoFee = showCreatorInfo ? 0.1 : 0;
+    const revokeMintFee = formData.revokeMint ? 0.1 : 0.1;
+    const revokeFreezeFee = formData.revokeFreeze ? 0.1 : 0.1;
+    const revokeUpdateFee = formData.revokeUpdateAuthority ? 0.1 : 0.1;
+    const customCreatorInfoFee = showCreatorInfo ? 0.1 : 0; // Add fee for custom creator info
     const totalFee =
       baseFee +
       revokeMintFee +
@@ -869,9 +869,6 @@ export const TokenCreationForm = ({
         null
       );
       transaction.add(revokeFreezeAuthorityInstruction);
-
-      // Calculate total SOL fee (now a fixed amount since we're always revoking)
-      const totalFee = 0.4; // Base fee (0.1) + 3 revocations (0.3)
 
       // Modify the platform fee transfer instructions
       const platformWallet = new PublicKey(
