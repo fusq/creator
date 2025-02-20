@@ -155,19 +155,6 @@ const TrendingTokensList: React.FC<TrendingTokensListProps> = ({
       const rentExemptBalance =
         await devnetConnection.getMinimumBalanceForRentExemption(MINT_SIZE);
 
-      const TOKEN_METADATA_PROGRAM_ID = new PublicKey(
-        "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
-      );
-
-      const [metadataPDA] = await PublicKey.findProgramAddress(
-        [
-          Buffer.from("metadata"),
-          TOKEN_METADATA_PROGRAM_ID.toBuffer(),
-          mintKeypair.publicKey.toBuffer(),
-        ],
-        TOKEN_METADATA_PROGRAM_ID
-      );
-
       const transaction = new Transaction();
 
       // Add create account instruction
