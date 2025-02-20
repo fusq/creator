@@ -481,7 +481,7 @@ const WalletProvider: FC = () => {
                         }`}
                       >
                         <TrendingUp className="w-5 h-5" />
-                        Trending
+                        Copy Trending Tokens
                       </button>
                     </div>
                   </div>
