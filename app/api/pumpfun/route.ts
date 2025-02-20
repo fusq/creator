@@ -1,9 +1,16 @@
 import { NextResponse } from 'next/server';
 
+// Define an interface for the coin data
+interface Coin {
+  symbol: string;
+  usd_market_cap: number;
+  // Add other properties as needed
+}
+
 export async function GET() {
   try {
     const totalPages = 4; // Fetching 4 pages (200 coins total)
-    let allCoins = [];
+    let allCoins: Coin[] = [];
 
     // Fetch multiple pages
     for (let page = 0; page < totalPages; page++) {
@@ -22,7 +29,7 @@ export async function GET() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
+      const data: Coin[] = await response.json();
       console.log(`Fetched ${data.length} coins on page ${page + 1}`);
       
       allCoins = [...allCoins, ...data];
@@ -35,8 +42,8 @@ export async function GET() {
 
     console.log(`Total unique coins fetched: ${uniqueCoins.length}`);
     
-    // Filter coins with USD market cap >= 50,000
-    const filteredData = uniqueCoins.filter((coin: any) => 
+    // Filter coins with USD market cap >= 30,000
+    const filteredData = uniqueCoins.filter((coin: Coin) => 
       coin.usd_market_cap >= 30000
     );
 
