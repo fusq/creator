@@ -17,11 +17,12 @@ import { AffiliatePage } from "./AffiliatePage";
 import Image from "next/image";
 import CreatePoolComponent from "./CreatePoolComponent";
 import DynamicAnnouncementBanner from "./DynamicAnnouncementBanner";
-import { Coins, Droplets, Menu } from "lucide-react";
+import { Coins, Droplets, Menu, TrendingUp } from "lucide-react";
+import TrendingTokensList from "./TrendingTokensList";
 
 const WalletProvider: FC = () => {
   const [currentView, setCurrentView] = useState<
-    "create" | "affiliate" | "createPool"
+    "create" | "affiliate" | "createPool" | "trending"
   >("create");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -403,15 +404,17 @@ const WalletProvider: FC = () => {
                             <Droplets className="w-4 h-4" />
                             Manage Liquidity
                           </button>
-                          <a
-                            href="https://raydium.io/liquidity/create-pool/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="px-2 sm:px-4 py-2 text-base font-medium rounded-md transition-colors text-neutral-400 hover:text-indigo-400 flex items-center gap-2 hidden"
+                          <button
+                            onClick={() => setCurrentView("trending")}
+                            className={`px-2 sm:px-4 py-2 text-base font-medium rounded-md transition-colors flex items-center gap-2 ${
+                              currentView === "trending"
+                                ? "text-indigo-500 hover:text-indigo-500"
+                                : "text-neutral-400 hover:text-indigo-400"
+                            }`}
                           >
-                            <Droplets className="w-4 h-4" />
-                            Create Liquidity
-                          </a>
+                            <TrendingUp className="w-4 h-4" />
+                            Trending
+                          </button>
                         </div>
                       </nav>
                     </div>
@@ -466,16 +469,20 @@ const WalletProvider: FC = () => {
                         <Droplets className="w-5 h-5" />
                         Manage Liquidity
                       </button>
-                      <a
-                        href="https://raydium.io/liquidity/create-pool/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-4 py-3 text-base font-medium rounded-md transition-colors text-neutral-400 hover:bg-neutral-800 flex items-center gap-2 hidden"
-                        onClick={() => setIsMobileMenuOpen(false)}
+                      <button
+                        onClick={() => {
+                          setCurrentView("trending");
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className={`px-4 py-3 text-base font-medium rounded-md transition-colors flex items-center gap-2 ${
+                          currentView === "trending"
+                            ? "bg-indigo-600 text-white"
+                            : "text-neutral-400 hover:bg-neutral-800"
+                        }`}
                       >
-                        <Droplets className="w-5 h-5" />
-                        Create Liquidity
-                      </a>
+                        <TrendingUp className="w-5 h-5" />
+                        Trending
+                      </button>
                     </div>
                   </div>
                 )}
@@ -503,6 +510,9 @@ const WalletProvider: FC = () => {
                     localStorage.getItem("pendingPoolToken") || undefined
                   }
                 />
+              )}
+              {currentView === "trending" && (
+                <TrendingTokensList setCurrentView={setCurrentView} />
               )}
 
               {/* Footer */}

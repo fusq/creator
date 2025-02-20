@@ -20,6 +20,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/solana-labs/token-list/main/assets/mainnet/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'cf-ipfs.com',
+        port: '',
+        pathname: '/ipfs/**',
+      },
     ],
   },
 };
