@@ -53,6 +53,7 @@ const CreatePoolComponent: React.FC<{ initialTokenAddress?: string }> = ({
     {}
   );
   const [isLoadingBalances, setIsLoadingBalances] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const USDC_ADDRESS = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
   const SOL_ADDRESS = "So11111111111111111111111111111111111111112";
@@ -317,11 +318,21 @@ const CreatePoolComponent: React.FC<{ initialTokenAddress?: string }> = ({
       // Clear the pendingPoolToken from localStorage
       localStorage.removeItem("pendingPoolToken");
 
+      // Reset all form values
+      setMintA("");
+      setAmountA("");
+      setAmountB("");
+
       showToast("Pool created successfully!", "success");
       setResult({
         txId: txId,
         success: true,
       });
+
+      // Trigger refresh after 2 seconds
+      setTimeout(() => {
+        setRefreshTrigger((prev) => prev + 1);
+      }, 2000);
     } catch (error: unknown) {
       console.error("Error creating pool:", error);
       if (error instanceof Error) {
@@ -609,7 +620,7 @@ const CreatePoolComponent: React.FC<{ initialTokenAddress?: string }> = ({
           </div>
         )}
       </div>
-      <RaydiumPoolsList />
+      <RaydiumPoolsList refreshTrigger={refreshTrigger} />
       <ToastContainer
         position="bottom-right"
         autoClose={5000}

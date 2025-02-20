@@ -38,9 +38,10 @@ interface StoredPool {
 
 interface Props {
   onRefresh?: () => void;
+  refreshTrigger?: number;
 }
 
-const RaydiumPoolsList: React.FC<Props> = ({ onRefresh }) => {
+const RaydiumPoolsList: React.FC<Props> = ({ onRefresh, refreshTrigger }) => {
   const { connection } = useConnection();
   const { publicKey, signAllTransactions } = useWallet();
   const [poolsInfo, setPoolsInfo] = useState<
@@ -96,6 +97,7 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh }) => {
         signAllTransactions,
       });
 
+      // Get stored pools and reverse to show newest first
       const storedPools: StoredPool[] = JSON.parse(
         localStorage.getItem("createdPools") || "[]"
       ).reverse();
@@ -146,29 +148,33 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh }) => {
           lpBalanceChecks.find((check) => check.txId === pool.txId)
             ?.hasBalance ?? false
       );
-      console.log(poolsToKeep);
-      // Update localStorage with filtered pools
-      localStorage.setItem("createdPools", JSON.stringify(poolsToKeep));
+
+      // Update localStorage with filtered pools, maintaining reverse chronological order
+      localStorage.setItem(
+        "createdPools",
+        JSON.stringify(poolsToKeep.reverse())
+      );
 
       const poolsWithSymbols: Record<
         string,
         PoolInfo & { symbols: { a: string; b: string } }
-      > = Object.fromEntries(
-        Object.entries(allPoolInfos).map(([key, info], index) => {
-          const storedPool = validStoredPools[index];
-          return [
-            key,
-            {
-              ...info,
-              poolId: new PublicKey(validPoolIds[index]),
-              symbols: {
-                a: storedPool.tokenBSymbol,
-                b: storedPool.tokenASymbol,
-              },
+      > = {};
+
+      // Create entries in reverse order to maintain newest first
+      validPoolIds.forEach((id, index) => {
+        const info = allPoolInfos[id];
+        const storedPool = validStoredPools[index];
+        if (info) {
+          poolsWithSymbols[id] = {
+            ...info,
+            poolId: new PublicKey(id),
+            symbols: {
+              a: storedPool.tokenBSymbol,
+              b: storedPool.tokenASymbol,
             },
-          ];
-        })
-      );
+          };
+        }
+      });
 
       setPoolsInfo(poolsWithSymbols);
     } catch (error) {
@@ -190,6 +196,13 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh }) => {
       onRefresh = fetchPools;
     }
   }, [onRefresh]);
+
+  // Add effect to listen for refreshTrigger changes
+  useEffect(() => {
+    if (refreshTrigger && refreshTrigger > 0) {
+      fetchPools();
+    }
+  }, [refreshTrigger]);
 
   const formatBN = (value: BN, decimals: number) => {
     const num = value.toNumber() / Math.pow(10, decimals);
@@ -302,6 +315,11 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh }) => {
         const { txId } = await execute({ sendAndConfirm: true });
         toast.success(`Liquidity removed successfully. Tx: ${txId}`);
         setIsModalOpen(false);
+
+        // Trigger refresh after 2 seconds
+        setTimeout(() => {
+          fetchPools();
+        }, 1000);
       } catch (error) {
         console.error("Error removing liquidity:", error);
         toast.error("Failed to remove liquidity. Please try again.");
@@ -582,7 +600,7 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh }) => {
         <button
           onClick={fetchPools}
           disabled={loading}
-          className="flex items-center p-2 rounded-lg hover:bg-neutral-700 transition-colors"
+          className="flex items-center rounded-lg hover:bg-indigo-600 transition-colors bg-indigo-500 px-3 py-2"
         >
           <svg
             className={`w-5 h-5 text-white mr-2 ${
