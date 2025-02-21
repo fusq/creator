@@ -321,11 +321,11 @@ const TrendingTokensList: React.FC<TrendingTokensListProps> = ({
       <div className="mb-6">
         <div className="space-y-4">
           <h2 className="text-2xl sm:text-3xl font-bold text-white">
-            Copy Pump.fun Trending Tokens in 1 click
+            Copy Pump.fun Trending Tokens in 1 Click
           </h2>
           <p className="text-neutral-400 text-sm sm:text-base">
             Copy the latest trending tokens from Pump.fun in 1 click and deploy
-            them on Raydium.
+            them on Raydium before the community does.
           </p>
           <div className="text-white text-base sm:text-lg">
             We only show you the most recent and best tokens with the most
