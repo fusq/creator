@@ -181,7 +181,7 @@ const WalletProvider: FC = () => {
               opacity: 0;
               transition: opacity linear 150ms;
               background: rgba(0, 0, 0, 0.5);
-              z-index: 1040;
+              z-index: 9999;
               overflow-y: auto;
             }
 
@@ -347,7 +347,7 @@ const WalletProvider: FC = () => {
             }
           `}</style>
           <div className="min-h-screen bg-neutral-900 text-white relative">
-            <header className="p-4 border-b border-neutral-700 relative z-[50]">
+            <header className="p-2 sm:p-4 border-b border-neutral-700 relative z-[50]">
               <div className="max-w-7xl mx-auto">
                 <div className="flex justify-between items-center">
                   {/* Left section with menu, logo and nav */}
