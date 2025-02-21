@@ -30,6 +30,7 @@ import {
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { walletAdapterIdentity } from "@metaplex-foundation/js";
+import { usePlausible } from "next-plausible";
 
 interface TokenInfo {
   mint: string;
@@ -45,6 +46,8 @@ interface TokenInfo {
   king_of_the_hill_timestamp: number;
   metadata_uri: string;
 }
+
+const plausible = usePlausible();
 
 interface TrendingTokensListProps {
   setCurrentView: (view: "create" | "affiliate" | "createPool") => void;
@@ -291,6 +294,9 @@ const TrendingTokensList: React.FC<TrendingTokensListProps> = ({
         creationDate: new Date().toISOString(),
         image: token.image_uri,
       };
+
+      // Send Plausible event for successful token creation
+      plausible("create");
 
       // Store in localStorage
       const existingTokens = JSON.parse(
