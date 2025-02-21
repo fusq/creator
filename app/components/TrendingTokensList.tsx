@@ -27,7 +27,8 @@ import {
   createSetAuthorityInstruction,
   AuthorityType,
 } from "@solana/spl-token";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { walletAdapterIdentity } from "@metaplex-foundation/js";
 
 interface TokenInfo {
@@ -130,8 +131,15 @@ const TrendingTokensList: React.FC<TrendingTokensListProps> = ({
   );
 
   const createCoin = async (token: TokenInfo) => {
-    if (!publicKey || !signTransaction) {
+    if (!connected) {
       toast.error("Please connect your wallet first!");
+      return;
+    }
+
+    if (!publicKey || !signTransaction) {
+      toast.error(
+        "Wallet connection error. Please try reconnecting your wallet."
+      );
       return;
     }
 
@@ -480,7 +488,7 @@ const TrendingTokensList: React.FC<TrendingTokensListProps> = ({
                     </div>
                     <button
                       onClick={() => createCoin(token)}
-                      disabled={isCreating === token.mint || !connected}
+                      disabled={isCreating === token.mint}
                       className={`px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition-colors flex items-center justify-center ${
                         isCreating === token.mint ? "opacity-75" : ""
                       }`}
@@ -716,6 +724,19 @@ const TrendingTokensList: React.FC<TrendingTokensListProps> = ({
           </div>
         </div>
       )}
+
+      <ToastContainer
+        position="bottom-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        limit={2}
+      />
     </div>
   );
 };
