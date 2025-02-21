@@ -47,8 +47,6 @@ interface TokenInfo {
   metadata_uri: string;
 }
 
-const plausible = usePlausible();
-
 interface TrendingTokensListProps {
   setCurrentView: (view: "create" | "affiliate" | "createPool") => void;
 }
@@ -108,6 +106,8 @@ const TrendingTokensList: React.FC<TrendingTokensListProps> = ({
   useEffect(() => {
     fetchTokens();
   }, []);
+
+  const plausible = usePlausible();
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
