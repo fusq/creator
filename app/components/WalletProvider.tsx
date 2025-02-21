@@ -414,6 +414,9 @@ const WalletProvider: FC = () => {
                           >
                             <TrendingUp className="w-4 h-4" />
                             Copy Trending Tokens
+                            <span className="ml-2 px-1.5 py-0.5 text-xs font-semibold bg-green-500 text-white rounded-full">
+                              NEW
+                            </span>
                           </button>
                         </div>
                       </nav>
@@ -482,6 +485,9 @@ const WalletProvider: FC = () => {
                       >
                         <TrendingUp className="w-5 h-5" />
                         Copy Trending Tokens
+                        <span className="ml-2 px-1.5 py-0.5 text-xs font-semibold bg-green-500 text-white rounded-full">
+                          NEW
+                        </span>
                       </button>
                     </div>
                   </div>
