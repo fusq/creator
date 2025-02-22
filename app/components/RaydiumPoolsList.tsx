@@ -48,6 +48,7 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh, refreshTrigger }) => {
     Record<string, PoolInfo & { symbols: { a: string; b: string } }>
   >({});
   const [loading, setLoading] = useState(false);
+  const [customTxId, setCustomTxId] = useState("");
 
   const getPoolIdFromTransaction = async (txId: string) => {
     try {
@@ -73,6 +74,8 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh, refreshTrigger }) => {
         console.warn(`Pool creation instruction not found for ${txId}`);
         return null;
       }
+
+      console.log(poolCreationInstruction.parsed.info.newAccount);
 
       return poolCreationInstruction.parsed.info.newAccount;
     } catch (error) {
@@ -113,6 +116,7 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh, refreshTrigger }) => {
       const validPoolIds = poolIdsResults.filter(
         (id): id is string => id !== null
       );
+      console.log(validPoolIds);
       const validStoredPools = storedPools.filter(
         (_, index) => poolIdsResults[index] !== null
       );
@@ -583,6 +587,41 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh, refreshTrigger }) => {
     );
   };
 
+  const addCustomPool = async () => {
+    if (!customTxId) return;
+
+    try {
+      const storedPools: StoredPool[] = JSON.parse(
+        localStorage.getItem("createdPools") || "[]"
+      );
+
+      // Check if transaction ID already exists
+      if (storedPools.some((pool) => pool.txId === customTxId)) {
+        toast.info("This pool has already been added");
+        return;
+      }
+
+      // Add new transaction ID to stored pools
+      storedPools.push({
+        poolId: "", // This will be populated when fetching pool info
+        tokenA: "",
+        tokenASymbol: "",
+        tokenB: "",
+        tokenBSymbol: "",
+        creationDate: new Date().toISOString(),
+        txId: customTxId,
+      });
+      localStorage.setItem("createdPools", JSON.stringify(storedPools));
+
+      toast.success("Custom pool added successfully");
+      setCustomTxId("");
+      fetchPools(); // Refresh the pool list
+    } catch (error) {
+      console.error("Error adding custom pool:", error);
+      toast.error("Failed to add custom pool. Please try again.");
+    }
+  };
+
   if (!publicKey) {
     return (
       <div className="text-white">
@@ -620,6 +659,7 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh, refreshTrigger }) => {
           <span className="text-white text-sm">Refresh</span>
         </button>
       </div>
+
       {loading ? (
         <div className="text-white">Loading pools information...</div>
       ) : Object.keys(poolsInfo).length === 0 ? (
@@ -631,6 +671,27 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh, refreshTrigger }) => {
             <PoolCard key={index} poolInfo={poolInfo} />
           ))
       )}
+      {/* Add custom pool input */}
+      <div className="flex flex-col space-y-2 pt-8">
+        <div className="text-neutral-400 text-sm">
+          Can&apos;t find your pool? Add it manually:
+        </div>
+        <div className="flex items-center space-x-2">
+          <input
+            type="text"
+            value={customTxId}
+            onChange={(e) => setCustomTxId(e.target.value)}
+            placeholder="Enter pool creation transaction ID"
+            className="flex-grow p-2 bg-neutral-700 text-white rounded"
+          />
+          <button
+            onClick={addCustomPool}
+            className="p-2 bg-indigo-500 text-white rounded hover:bg-indigo-600"
+          >
+            Add Custom Pool
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
