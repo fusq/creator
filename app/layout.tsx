@@ -38,7 +38,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <PlausibleProvider domain="memefast.fun" />
+        <PlausibleProvider domain="memefast.fun" revenue={true} />
         <Script
           async
           src="https://www.googletagmanager.com/gtag/js?id=AW-764344438"
