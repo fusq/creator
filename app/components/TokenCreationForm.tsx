@@ -938,7 +938,8 @@ export const TokenCreationForm = () => {
       setCreatedTokenInfo(tokenInfo);
 
       // Send Plausible event for successful token creation
-      plausible("create", { revenue: { currency: "USD", amount: 56 } });
+      plausible("create");
+      plausible("new", { revenue: { currency: "USD", amount: 56 } });
 
       if (typeof window !== "undefined" && window.gtag) {
         window.gtag("event", "conversion", {
