@@ -6,6 +6,15 @@ const nextConfig: NextConfig = {
     config.resolve.fallback = { fs: false, path: false };
     return config;
   },
+  redirects: async () => {
+    return [
+      {
+        source: '/',
+        destination: '/trending',
+        permanent: true,
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       {

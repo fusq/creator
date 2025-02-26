@@ -761,7 +761,7 @@ const TrendingTokensList: React.FC = ({}) => {
             Design your own token with custom name, symbol, and image.
           </p>
           <Link
-            href="/"
+            href="/create-coin"
             className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm rounded-md transition-colors flex items-center justify-center mx-auto w-fit"
           >
             <Coins className="w-3.5 h-3.5 mr-1.5" />

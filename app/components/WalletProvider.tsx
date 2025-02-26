@@ -379,9 +379,9 @@ const WalletProvider: FC<{ children: React.ReactNode }> = ({ children }) => {
                       <nav className="hidden sm:flex items-center">
                         <div className="flex space-x-2 sm:space-x-6">
                           <Link
-                            href="/"
+                            href="/create-coin"
                             className={`px-2 sm:px-4 py-2 text-base font-medium rounded-md transition-colors flex items-center gap-2 ${
-                              pathname === "/"
+                              pathname === "/create-coin"
                                 ? "text-indigo-500 hover:text-indigo-500"
                                 : "text-neutral-400 hover:text-indigo-400"
                             }`}
@@ -441,12 +441,12 @@ const WalletProvider: FC<{ children: React.ReactNode }> = ({ children }) => {
                       </div>
 
                       <Link
-                        href="/"
+                        href="/create-coin"
                         onClick={() => {
                           setIsMobileMenuOpen(false);
                         }}
                         className={`px-4 py-3 text-base font-medium rounded-md transition-colors flex items-center gap-2 ${
-                          pathname === "/"
+                          pathname === "/create-coin"
                             ? "bg-indigo-600 text-white"
                             : "text-neutral-400 hover:bg-neutral-800"
                         }`}
