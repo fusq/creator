@@ -304,7 +304,7 @@ const TrendingTokensList: React.FC = ({}) => {
       };
 
       // Send Plausible event for successful token creation
-      plausible("create");
+      plausible("copy");
 
       // Store in localStorage
       const existingTokens = JSON.parse(

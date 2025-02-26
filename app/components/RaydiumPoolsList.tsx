@@ -5,6 +5,7 @@ import { PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import BN from "bn.js";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { usePlausible } from "next-plausible";
 
 interface PoolInfo {
   configId: PublicKey;
@@ -66,6 +67,8 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh, refreshTrigger }) => {
       return null;
     }
   };
+
+  const plausible = usePlausible();
 
   const fetchPoolsWithSolPrice = async () => {
     if (!publicKey) return;
@@ -384,6 +387,7 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh, refreshTrigger }) => {
         const { txId } = await execute({ sendAndConfirm: true });
         toast.success(`Liquidity removed successfully. Tx: ${txId}`);
         setIsModalOpen(false);
+        plausible("remove");
 
         // Trigger refresh after 2 seconds
         setTimeout(() => {

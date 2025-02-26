@@ -13,6 +13,7 @@ import { Check } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import RaydiumPoolsList from "./RaydiumPoolsList";
+import { usePlausible } from "next-plausible";
 
 interface TokenInfo {
   tokenAddress: string;
@@ -103,6 +104,8 @@ const CreatePoolComponent: React.FC<{ initialTokenAddress?: string }> = ({
       return 0;
     }
   };
+
+  const plausible = usePlausible();
 
   // Fetch balances when component mounts or when wallet changes
   useEffect(() => {
@@ -348,6 +351,8 @@ const CreatePoolComponent: React.FC<{ initialTokenAddress?: string }> = ({
         txId: txId,
         success: true,
       });
+
+      plausible("create");
 
       // Trigger refresh after 2 seconds
       setTimeout(() => {
