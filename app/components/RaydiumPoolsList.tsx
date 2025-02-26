@@ -387,7 +387,7 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh, refreshTrigger }) => {
         const { txId } = await execute({ sendAndConfirm: true });
         toast.success(`Liquidity removed successfully. Tx: ${txId}`);
         setIsModalOpen(false);
-        plausible("remove");
+        plausible("remove", { revenue: { currency: "USD", amount: 14 } });
 
         // Trigger refresh after 2 seconds
         setTimeout(() => {

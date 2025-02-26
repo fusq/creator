@@ -352,7 +352,7 @@ const CreatePoolComponent: React.FC<{ initialTokenAddress?: string }> = ({
         success: true,
       });
 
-      plausible("create", { props: { value: 14 } });
+      plausible("create", { revenue: { currency: "USD", amount: 14 } });
 
       // Trigger refresh after 2 seconds
       setTimeout(() => {
