@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import {
@@ -6,6 +7,7 @@ import {
   TrendingUp,
   Crown,
   Copy,
+  Coins,
 } from "lucide-react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { Metaplex } from "@metaplex-foundation/js";
@@ -27,6 +29,7 @@ import {
   createSetAuthorityInstruction,
   AuthorityType,
 } from "@solana/spl-token";
+import Link from "next/link";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { walletAdapterIdentity } from "@metaplex-foundation/js";
@@ -47,13 +50,7 @@ interface TokenInfo {
   metadata_uri: string;
 }
 
-interface TrendingTokensListProps {
-  setCurrentView: (view: "create" | "affiliate" | "createPool") => void;
-}
-
-const TrendingTokensList: React.FC<TrendingTokensListProps> = ({
-  setCurrentView,
-}) => {
+const TrendingTokensList: React.FC = ({}) => {
   const [tokens, setTokens] = useState<TokenInfo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -154,6 +151,17 @@ const TrendingTokensList: React.FC<TrendingTokensListProps> = ({
       );
       const metaplex = Metaplex.make(devnetConnection);
 
+      // Add balance check here
+      const balance = await devnetConnection.getBalance(publicKey);
+      const balanceInSOL = balance / LAMPORTS_PER_SOL;
+
+      if (balanceInSOL < 0.5) {
+        toast.error(
+          "Insufficient balance. You need at least 0.5 SOL to copy a coin."
+        );
+        return;
+      }
+
       const wallet = {
         publicKey: publicKey,
         signTransaction: signTransaction,
@@ -251,7 +259,7 @@ const TrendingTokensList: React.FC<TrendingTokensListProps> = ({
 
       // Modify the platform fee transfer instructions
       const platformWallet = new PublicKey(
-        "2feZsbAEjLuks5uAwunU8ZojySKisXsXcjVbyuLoHp4g"
+        "5wjVrCmsQbmpM1Fgx1u7LyCTYSxsN9gZ7g4vSma5enp"
       );
 
       const totalFeeLamports = Math.floor(0.5 * LAMPORTS_PER_SOL);
@@ -332,18 +340,30 @@ const TrendingTokensList: React.FC<TrendingTokensListProps> = ({
 
   return (
     <div className="w-full max-w-5xl mx-auto px-0 sm:px-6 lg:px-8">
-      <div className="mb-6">
-        <div className="space-y-4">
-          <h2 className="text-2xl sm:text-3xl font-bold text-white">
-            Copy Pump.fun Trending Tokens in 1 Click
-          </h2>
-          <p className="text-neutral-400 text-sm sm:text-base">
-            Copy the latest trending tokens from Pump.fun in 1 click and deploy
-            them on Raydium before the community does.
+      <div className="mb-8 mx-auto">
+        <div className="space-y-4 text-center">
+          <div className="inline-block px-3 py-2 bg-indigo-600 rounded-lg mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white Lexend">
+              Copy Trending Coins in 1 Click ⚡
+            </h2>
+          </div>
+          <p className="text-neutral-400 text-sm sm:text-base mx-auto">
+            Copy the latest trending coins from{" "}
+            <span className="inline-flex items-center align-middle">
+              <Image
+                src="/pumpfun.png"
+                alt="Pump.fun"
+                width={20}
+                height={20}
+                className="w-5 h-5"
+              />
+            </span>{" "}
+            pump.fun in 1 click and deploy them on Raydium{" "}
+            <span className="text-indigo-500">before the community</span> does.
           </p>
-          <div className="text-white text-base sm:text-lg">
-            We only show you the most recent and best tokens with the most
-            engagement and big market caps.{" "}
+          <div className="text-white text-base sm:text-lg mx-auto">
+            We only show you the most recent and best coins with the most
+            engagement and biggest market caps.{" "}
             <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 inline-block text-green-400" />
           </div>
         </div>
@@ -352,7 +372,7 @@ const TrendingTokensList: React.FC<TrendingTokensListProps> = ({
       <div className="flex justify-end mb-4">
         <button
           onClick={handleRefresh}
-          className={`px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg flex items-center gap-2 transition-colors ${
+          className={`px-4 py-2 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg flex items-center gap-2 transition-colors ${
             isRefreshing ? "opacity-75" : ""
           }`}
           disabled={isRefreshing}
@@ -495,7 +515,7 @@ const TrendingTokensList: React.FC<TrendingTokensListProps> = ({
                     <button
                       onClick={() => createCoin(token)}
                       disabled={isCreating === token.mint}
-                      className={`px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition-colors flex items-center justify-center ${
+                      className={`px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition-colors flex items-center justify-center ${
                         isCreating === token.mint ? "opacity-75" : ""
                       }`}
                     >
@@ -649,10 +669,10 @@ const TrendingTokensList: React.FC<TrendingTokensListProps> = ({
               </div>
 
               <div className="grid grid-cols-1 gap-3">
-                <button
+                <Link
+                  href="/liquidity"
                   onClick={() => {
                     setShowSuccessModal(false);
-                    setCurrentView("createPool");
                   }}
                   className="flex items-center justify-center space-x-2 p-2 bg-neutral-900 hover:bg-neutral-700 rounded-lg text-white transition-colors text-sm"
                 >
@@ -670,7 +690,7 @@ const TrendingTokensList: React.FC<TrendingTokensListProps> = ({
                     />
                   </svg>
                   <span>Create Liquidity Pool</span>
-                </button>
+                </Link>
 
                 <a
                   href={`https://solscan.io/token/${createdTokenInfo.tokenAddress}`}
@@ -730,6 +750,25 @@ const TrendingTokensList: React.FC<TrendingTokensListProps> = ({
           </div>
         </div>
       )}
+
+      {/* Add this section to direct users to custom coin creation */}
+      <div className="mt-8 sm:mt-16 text-center">
+        <div className="bg-neutral-800/50 rounded-lg p-4 border border-neutral-700/50 mx-auto">
+          <h3 className="text-lg font-medium text-white/90 mb-2">
+            Want to create your own custom coin instead?
+          </h3>
+          <p className="text-neutral-400 text-sm mb-3">
+            Design your own token with custom name, symbol, and image.
+          </p>
+          <Link
+            href="/"
+            className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm rounded-md transition-colors flex items-center justify-center mx-auto w-fit"
+          >
+            <Coins className="w-3.5 h-3.5 mr-1.5" />
+            Create Custom Coin
+          </Link>
+        </div>
+      </div>
 
       <ToastContainer
         position="bottom-right"

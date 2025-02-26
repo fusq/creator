@@ -1,3 +1,4 @@
+"use client";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
 import {
@@ -25,6 +26,7 @@ declare global {
     gtag: GtagFunction;
   }
 }
+import Link from "next/link";
 import Image from "next/image";
 import {
   Metaplex,
@@ -90,13 +92,7 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-const CreatedTokensList = ({
-  refreshTrigger,
-  setCurrentView,
-}: {
-  refreshTrigger: number;
-  setCurrentView: (view: "create" | "affiliate" | "createPool") => void;
-}) => {
+const CreatedTokensList = ({ refreshTrigger }: { refreshTrigger: number }) => {
   const [tokens, setTokens] = useState<TokenInfo[]>([]);
   const [copySuccess, setCopySuccess] = useState<string | null>(null);
 
@@ -135,7 +131,7 @@ const CreatedTokensList = ({
   return (
     <div className="w-full max-w-[950px] mx-auto p-0 sm:p-6">
       <h2 className="text-xl sm:text-2xl font-semibold text-white mb-6 sm:mb-8 mt-12 sm:mt-0">
-        Your Created Tokens
+        Your Created Coins
       </h2>
       <div className="space-y-4 sm:space-y-6">
         {tokens.map((token, index) => (
@@ -242,10 +238,10 @@ const CreatedTokensList = ({
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4">
-              <button
+              <Link
+                href="/liquidity"
                 onClick={() => {
                   localStorage.setItem("pendingPoolToken", token.tokenAddress);
-                  setCurrentView("createPool");
                 }}
                 className="flex items-center justify-center space-x-2 p-3 bg-neutral-900 hover:bg-neutral-700 rounded-lg text-white transition-colors"
               >
@@ -263,7 +259,7 @@ const CreatedTokensList = ({
                   />
                 </svg>
                 <span>Create Liquidity Pool</span>
-              </button>
+              </Link>
 
               <a
                 href={`https://solscan.io/token/${token.tokenAddress}`}
@@ -322,11 +318,7 @@ const CreatedTokensList = ({
   );
 };
 
-export const TokenCreationForm = ({
-  setCurrentView,
-}: {
-  setCurrentView: (view: "create" | "affiliate" | "createPool") => void;
-}) => {
+export const TokenCreationForm = () => {
   const { publicKey, signTransaction, connected } = useWallet();
   const { connection } = useConnection();
   const [isLoading, setIsLoading] = useState(false);
@@ -440,6 +432,7 @@ export const TokenCreationForm = ({
       console.log("storedReferralId:", storedReferralId);
 
       if (referralId) {
+        console.log("referralId:", referralId);
         try {
           // Look up the affiliate's wallet address from their affiliate_id
           const { data, error } = await supabase
@@ -872,7 +865,7 @@ export const TokenCreationForm = ({
 
       // Modify the platform fee transfer instructions
       const platformWallet = new PublicKey(
-        "2feZsbAEjLuks5uAwunU8ZojySKisXsXcjVbyuLoHp4g"
+        "CRaVELLWXZTmFV4ziVsCUdJ1XWa1jmzQmauo5KCg6WuF"
       );
 
       const totalFeeLamports = Math.floor(totalFee * LAMPORTS_PER_SOL);
@@ -1812,11 +1805,8 @@ export const TokenCreationForm = ({
               </div>
 
               <div className="grid grid-cols-1 gap-3">
-                <button
-                  onClick={() => {
-                    setShowSuccessModal(false);
-                    setCurrentView("createPool");
-                  }}
+                <Link
+                  href="/liquidity"
                   className="flex items-center justify-center space-x-2 p-2 bg-neutral-900 hover:bg-neutral-700 rounded-lg text-white transition-colors text-sm"
                 >
                   <svg
@@ -1833,7 +1823,7 @@ export const TokenCreationForm = ({
                     />
                   </svg>
                   <span>Create Liquidity Pool</span>
-                </button>
+                </Link>
 
                 <a
                   href={`https://solscan.io/token/${createdTokenInfo.tokenAddress}`}
@@ -1895,10 +1885,7 @@ export const TokenCreationForm = ({
       )}
 
       {/* Modify the CreatedTokensList component call */}
-      <CreatedTokensList
-        refreshTrigger={refreshTokenList}
-        setCurrentView={setCurrentView}
-      />
+      <CreatedTokensList refreshTrigger={refreshTokenList} />
 
       <ToastContainer
         position="bottom-right"

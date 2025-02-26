@@ -4,6 +4,7 @@ import { Raydium, Percent } from "@raydium-io/raydium-sdk-v2";
 import { PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import BN from "bn.js";
 import { toast } from "react-toastify";
+import axios from "axios";
 
 interface PoolInfo {
   configId: PublicKey;
@@ -24,6 +25,7 @@ interface PoolInfo {
   status: number;
   openTime: BN;
   poolId: PublicKey;
+  lpBalance: BN;
 }
 
 interface StoredPool {
@@ -42,6 +44,7 @@ interface Props {
 }
 
 const RaydiumPoolsList: React.FC<Props> = ({ onRefresh, refreshTrigger }) => {
+  const [solPrice, setSolPrice] = useState<number | null>(null);
   const { connection } = useConnection();
   const { publicKey, signAllTransactions } = useWallet();
   const [poolsInfo, setPoolsInfo] = useState<
@@ -49,48 +52,29 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh, refreshTrigger }) => {
   >({});
   const [loading, setLoading] = useState(false);
   const [customTxId, setCustomTxId] = useState("");
+  const [initialPoolAmounts, setInitialPoolAmounts] = useState<
+    Record<string, { tokenB: string; amount: number }>
+  >({});
 
-  const getPoolIdFromTransaction = async (txId: string) => {
+  const fetchSolPrice = async () => {
     try {
-      const tx = await connection.getParsedTransaction(txId, {
-        maxSupportedTransactionVersion: 0,
-      });
-
-      if (!tx || !tx.meta || !tx.meta.innerInstructions) {
-        console.warn(`Transaction details not found for ${txId}`);
-        return null;
-      }
-
-      const innerInstructions = tx.meta.innerInstructions[0];
-
-      if (!innerInstructions || !innerInstructions.instructions) {
-        console.warn(`Inner instructions not found for ${txId}`);
-        return null;
-      }
-
-      const poolCreationInstruction = innerInstructions.instructions[12];
-
-      if (!poolCreationInstruction || !("parsed" in poolCreationInstruction)) {
-        console.warn(`Pool creation instruction not found for ${txId}`);
-        return null;
-      }
-
-      console.log(poolCreationInstruction.parsed.info.newAccount);
-
-      return poolCreationInstruction.parsed.info.newAccount;
+      const response = await axios.get("/api/get-sol-price");
+      console.log("SOL Price:", response.data.price);
+      return response.data.price;
     } catch (error) {
-      console.error(
-        `Error extracting pool ID from transaction ${txId}:`,
-        error
-      );
+      console.error("Error fetching SOL price:", error);
       return null;
     }
   };
 
-  const fetchPools = async () => {
+  const fetchPoolsWithSolPrice = async () => {
     if (!publicKey) return;
     setLoading(true);
     try {
+      // Fetch SOL price first
+      const solPrice = await fetchSolPrice();
+      setSolPrice(solPrice);
+
       const raydium = await Raydium.load({
         connection,
         owner: publicKey,
@@ -141,33 +125,23 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh, refreshTrigger }) => {
               .amount || "0";
           return {
             txId: validStoredPools[index].txId,
-            hasBalance: new BN(lpBalance).gt(new BN(0)),
+            lpBalance: new BN(lpBalance),
           };
         })
       );
 
-      // Filter out pools with zero LP from localStorage
-      const poolsToKeep = storedPools.filter(
-        (pool) =>
-          lpBalanceChecks.find((check) => check.txId === pool.txId)
-            ?.hasBalance ?? false
-      );
-
-      // Update localStorage with filtered pools, maintaining reverse chronological order
-      localStorage.setItem(
-        "createdPools",
-        JSON.stringify(poolsToKeep.reverse())
-      );
-
       const poolsWithSymbols: Record<
         string,
-        PoolInfo & { symbols: { a: string; b: string } }
+        PoolInfo & { symbols: { a: string; b: string }; lpBalance: BN }
       > = {};
 
       // Create entries in reverse order to maintain newest first
       validPoolIds.forEach((id, index) => {
         const info = allPoolInfos[id];
         const storedPool = validStoredPools[index];
+        const lpBalanceCheck = lpBalanceChecks.find(
+          (check) => check.txId === storedPool.txId
+        );
         if (info) {
           poolsWithSymbols[id] = {
             ...info,
@@ -176,6 +150,7 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh, refreshTrigger }) => {
               a: storedPool.tokenBSymbol,
               b: storedPool.tokenASymbol,
             },
+            lpBalance: lpBalanceCheck?.lpBalance || new BN(0),
           };
         }
       });
@@ -191,22 +166,72 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh, refreshTrigger }) => {
 
   // Initial fetch
   useEffect(() => {
-    fetchPools();
+    fetchPoolsWithSolPrice();
   }, [publicKey, connection]);
 
   // Expose refresh function to parent
   useEffect(() => {
     if (onRefresh) {
-      onRefresh = fetchPools;
+      onRefresh = fetchPoolsWithSolPrice;
     }
   }, [onRefresh]);
 
   // Add effect to listen for refreshTrigger changes
   useEffect(() => {
     if (refreshTrigger && refreshTrigger > 0) {
-      fetchPools();
+      fetchPoolsWithSolPrice();
     }
   }, [refreshTrigger]);
+
+  useEffect(() => {
+    const storedInitialPoolAmounts = JSON.parse(
+      localStorage.getItem("initialPoolAmounts") || "{}"
+    );
+    console.log(JSON.stringify(storedInitialPoolAmounts));
+    setInitialPoolAmounts(storedInitialPoolAmounts);
+  }, []);
+
+  const getPoolIdFromTransaction = async (txId: string) => {
+    try {
+      const tx = await connection.getParsedTransaction(txId, {
+        maxSupportedTransactionVersion: 0,
+      });
+
+      if (!tx || !tx.meta || !tx.meta.innerInstructions) {
+        console.warn(`Transaction details not found for ${txId}`);
+        return null;
+      }
+
+      const innerInstructions = tx.meta.innerInstructions[0];
+
+      if (!innerInstructions || !innerInstructions.instructions) {
+        console.warn(`Inner instructions not found for ${txId}`);
+        return null;
+      }
+
+      const poolCreationInstruction = innerInstructions.instructions[12];
+
+      if (!poolCreationInstruction || !("parsed" in poolCreationInstruction)) {
+        console.warn(`Pool creation instruction not found for ${txId}`);
+        return null;
+      }
+
+      console.log(poolCreationInstruction.parsed.info.newAccount);
+
+      return poolCreationInstruction.parsed.info.newAccount;
+    } catch (error) {
+      console.error(
+        `Error extracting pool ID from transaction ${txId}:`,
+        error
+      );
+      return null;
+    }
+  };
+
+  const formatBNInteger = (value: BN, decimals: number): number => {
+    const num = value.toNumber() / Math.pow(10, decimals);
+    return parseFloat(num.toFixed(decimals)); // This ensures we get a number, not a string
+  };
 
   const formatBN = (value: BN, decimals: number) => {
     const num = value.toNumber() / Math.pow(10, decimals);
@@ -243,6 +268,46 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh, refreshTrigger }) => {
       (poolInfo as { symbols: { a: unknown; b: unknown } }).symbols.b !==
         undefined
     );
+  };
+
+  const calculateProfitLoss = (
+    poolInfo: PoolInfo & { symbols: { a: string; b: string } }
+  ) => {
+    const initialAmount = initialPoolAmounts[poolInfo.mintB.toString()];
+    console.log("Initial amount:", initialAmount);
+    if (!initialAmount) {
+      console.log(
+        "Initial amount not found for mintB:",
+        poolInfo.mintB.toString()
+      );
+      console.log(
+        "Available keys in initialPoolAmounts:",
+        Object.keys(initialPoolAmounts)
+      );
+      return null;
+    }
+
+    const isSol = initialAmount.tokenB === "SOL";
+    const currentAmount = isSol
+      ? formatBNInteger(poolInfo.vaultAAmount, poolInfo.mintDecimalA)
+      : formatBNInteger(poolInfo.vaultBAmount, poolInfo.mintDecimalB);
+    console.log("Current amount:", currentAmount);
+
+    const difference = currentAmount - initialAmount.amount;
+    const percentageChange = (difference / initialAmount.amount) * 100;
+
+    console.log(
+      "Difference:",
+      difference,
+      "Percentage change:",
+      percentageChange
+    );
+
+    return {
+      difference,
+      percentageChange,
+      tokenSymbol: initialAmount.tokenB,
+    };
   };
 
   const PoolCard: React.FC<{
@@ -310,7 +375,7 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh, refreshTrigger }) => {
           txVersion: 0,
           txTipConfig: {
             address: new PublicKey(
-              "2feZsbAEjLuks5uAwunU8ZojySKisXsXcjVbyuLoHp4g"
+              "5DAUjziKKSfiwW9V6s7MbVCiCK4bZr64rCbsnPpeqEwr"
             ),
             amount: new BN(0.1 * LAMPORTS_PER_SOL), // 0.05 SOL
           },
@@ -322,7 +387,7 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh, refreshTrigger }) => {
 
         // Trigger refresh after 2 seconds
         setTimeout(() => {
-          fetchPools();
+          fetchPoolsWithSolPrice();
         }, 1000);
       } catch (error) {
         console.error("Error removing liquidity:", error);
@@ -331,6 +396,14 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh, refreshTrigger }) => {
         setIsRemoving(false);
       }
     };
+
+    const profitLoss = calculateProfitLoss(poolInfo);
+    console.log("Profit/Loss calculation result:", profitLoss);
+
+    const usdValue =
+      profitLoss && solPrice && profitLoss.tokenSymbol === "SOL"
+        ? profitLoss.difference * solPrice
+        : null;
 
     return (
       <div className="bg-neutral-800 p-4 sm:p-6 rounded-lg space-y-4 sm:space-y-6 w-full sm:w-[800px] relative">
@@ -458,7 +531,7 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh, refreshTrigger }) => {
           <span className="text-white">{formatAddress(poolInfo.poolId)}</span>
         </div>
         {/* Pool Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="bg-neutral-900 p-4 rounded-lg">
             <h3 className="text-neutral-400 text-sm mb-2">
               Pooled {poolInfo.symbols.a}
@@ -526,6 +599,33 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh, refreshTrigger }) => {
               </span>
             </div>
           </div>
+
+          {profitLoss && (
+            <div className="bg-neutral-900 p-4 rounded-lg">
+              <h3 className="text-neutral-400 text-sm mb-2">Profit/Loss</h3>
+              <div
+                className={`text-lg font-semibold ${
+                  profitLoss.difference >= 0 ? "text-green-400" : "text-red-400"
+                }`}
+              >
+                {usdValue !== null && (
+                  <>
+                    {profitLoss.difference >= 0 ? "+" : "-"}$
+                    {Math.abs(usdValue).toFixed(2)} USD
+                  </>
+                )}
+                <span className="text-sm ml-2">
+                  ({profitLoss.difference >= 0 ? "+" : "-"}
+                  {Math.abs(profitLoss.percentageChange).toFixed(2)}%)
+                </span>
+                <div className="text-sm text-neutral-400 mt-1">
+                  ≈ {profitLoss.difference >= 0 ? "+" : "-"}
+                  {Math.abs(profitLoss.difference).toFixed(2)}{" "}
+                  {profitLoss.tokenSymbol}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Remove Liquidity Modal */}
@@ -615,7 +715,11 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh, refreshTrigger }) => {
 
       toast.success("Custom pool added successfully");
       setCustomTxId("");
-      fetchPools(); // Refresh the pool list
+
+      // Add a delay before refreshing the whole page
+      setTimeout(() => {
+        window.location.reload(); // This will refresh the entire page
+      }, 2000); // 2 seconds delay
     } catch (error) {
       console.error("Error adding custom pool:", error);
       toast.error("Failed to add custom pool. Please try again.");
@@ -637,7 +741,7 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh, refreshTrigger }) => {
           Your Raydium Pools
         </h2>
         <button
-          onClick={fetchPools}
+          onClick={fetchPoolsWithSolPrice}
           disabled={loading}
           className="flex items-center rounded-lg hover:bg-indigo-600 transition-colors bg-indigo-500 px-3 py-2"
         >
@@ -662,14 +766,24 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh, refreshTrigger }) => {
 
       {loading ? (
         <div className="text-white">Loading pools information...</div>
-      ) : Object.keys(poolsInfo).length === 0 ? (
-        <div className="text-white">No pools found with LP tokens.</div>
       ) : (
-        Object.values(poolsInfo)
-          .filter(isValidPoolInfo)
-          .map((poolInfo, index) => (
-            <PoolCard key={index} poolInfo={poolInfo} />
-          ))
+        <>
+          {Object.values(poolsInfo)
+            .filter(isValidPoolInfo)
+            .filter((poolInfo) => !poolInfo.lpBalance.isZero())
+            .map((poolInfo, index) => (
+              <PoolCard key={index} poolInfo={poolInfo} />
+            ))}
+          {Object.values(poolsInfo)
+            .filter(isValidPoolInfo)
+            .filter((poolInfo) => !poolInfo.lpBalance.isZero()).length ===
+            0 && (
+            <div className="text-neutral-400">
+              You don&apos;t have any active Raydium pools with liquidity on
+              this address.
+            </div>
+          )}
+        </>
       )}
       {/* Add custom pool input */}
       <div className="flex flex-col space-y-2 pt-8">

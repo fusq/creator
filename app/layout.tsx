@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import PlausibleProvider from "next-plausible";
 import Script from "next/script";
+import ClientWallet from "./components/ClientWallet";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -54,7 +55,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <ClientWallet>{children}</ClientWallet>
       </body>
     </html>
   );

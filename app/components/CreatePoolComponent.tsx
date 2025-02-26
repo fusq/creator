@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from "react";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import {
@@ -53,7 +54,7 @@ const CreatePoolComponent: React.FC<{ initialTokenAddress?: string }> = ({
     {}
   );
   const [isLoadingBalances, setIsLoadingBalances] = useState(false);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [refreshTrigger] = useState(0);
 
   const USDC_ADDRESS = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
   const SOL_ADDRESS = "So11111111111111111111111111111111111111112";
@@ -66,6 +67,12 @@ const CreatePoolComponent: React.FC<{ initialTokenAddress?: string }> = ({
       localStorage.getItem("createdTokens") || "[]"
     );
     setSavedTokens(storedTokens);
+
+    // Check for pendingPoolToken in localStorage
+    const pendingPoolToken = localStorage.getItem("pendingPoolToken");
+    if (pendingPoolToken) {
+      setMintA(pendingPoolToken);
+    }
   }, []);
 
   // Function to fetch token balance
@@ -223,6 +230,19 @@ const CreatePoolComponent: React.FC<{ initialTokenAddress?: string }> = ({
     );
     const updatedPools = [...existingPools, poolInfo];
     localStorage.setItem("createdPools", JSON.stringify(updatedPools));
+
+    // Save initial amounts
+    const initialPoolAmounts = JSON.parse(
+      localStorage.getItem("initialPoolAmounts") || "{}"
+    );
+    initialPoolAmounts[poolInfo.tokenA] = {
+      tokenB: mintB.symbol,
+      amount: parseFloat(amountB),
+    };
+    localStorage.setItem(
+      "initialPoolAmounts",
+      JSON.stringify(initialPoolAmounts)
+    );
   };
 
   const createPool = async () => {
@@ -291,7 +311,7 @@ const CreatePoolComponent: React.FC<{ initialTokenAddress?: string }> = ({
         txVersion: 0,
         txTipConfig: {
           address: new PublicKey(
-            "2feZsbAEjLuks5uAwunU8ZojySKisXsXcjVbyuLoHp4g"
+            "5a1BuZAgY1AAEiZjM9APiWg5tYk2E2WVYtWEXPFhUGBx"
           ),
           amount: new BN(0.1 * LAMPORTS_PER_SOL),
         },
@@ -331,8 +351,8 @@ const CreatePoolComponent: React.FC<{ initialTokenAddress?: string }> = ({
 
       // Trigger refresh after 2 seconds
       setTimeout(() => {
-        setRefreshTrigger((prev) => prev + 1);
-      }, 2000);
+        window.location.reload();
+      }, 1000);
     } catch (error: unknown) {
       console.error("Error creating pool:", error);
       if (error instanceof Error) {

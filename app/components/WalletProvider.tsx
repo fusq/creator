@@ -1,7 +1,6 @@
 "use client";
 
 import { FC, useMemo, useState } from "react";
-import GuideFaq from "./GuideFaq";
 import {
   ConnectionProvider,
   WalletProvider as SolanaWalletProvider,
@@ -12,24 +11,21 @@ import {
   WalletMultiButton,
 } from "@solana/wallet-adapter-react-ui";
 import { WalletBalance } from "./WalletBalance";
-import { TokenCreationForm } from "./TokenCreationForm";
-import { AffiliatePage } from "./AffiliatePage";
 import Image from "next/image";
-import CreatePoolComponent from "./CreatePoolComponent";
 import DynamicAnnouncementBanner from "./DynamicAnnouncementBanner";
 import { Coins, Droplets, Menu, TrendingUp } from "lucide-react";
-import TrendingTokensList from "./TrendingTokensList";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
-const WalletProvider: FC = () => {
-  const [currentView, setCurrentView] = useState<
-    "create" | "affiliate" | "createPool" | "trending"
-  >("create");
+const WalletProvider: FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Use Helius RPC endpoint
   const endpoint =
     "https://mainnet.helius-rpc.com/?api-key=3212d845-480e-4b86-af4f-c8150ebb819a";
   const wallets = useMemo(() => [new PhantomWalletAdapter()], []);
+
+  const pathname = usePathname();
 
   return (
     <ConnectionProvider endpoint={endpoint}>
@@ -382,42 +378,42 @@ const WalletProvider: FC = () => {
                       {/* Desktop Navigation - Now Next to Logo */}
                       <nav className="hidden sm:flex items-center">
                         <div className="flex space-x-2 sm:space-x-6">
-                          <button
-                            onClick={() => setCurrentView("create")}
+                          <Link
+                            href="/"
                             className={`px-2 sm:px-4 py-2 text-base font-medium rounded-md transition-colors flex items-center gap-2 ${
-                              currentView === "create"
+                              pathname === "/"
                                 ? "text-indigo-500 hover:text-indigo-500"
                                 : "text-neutral-400 hover:text-indigo-400"
                             }`}
                           >
                             <Coins className="w-4 h-4" />
-                            Create Token
-                          </button>
-                          <button
-                            onClick={() => setCurrentView("createPool")}
+                            Create Coin
+                          </Link>
+                          <Link
+                            href="/liquidity"
                             className={`px-2 sm:px-4 py-2 text-base font-medium rounded-md transition-colors flex items-center gap-2 ${
-                              currentView === "createPool"
+                              pathname === "/liquidity"
                                 ? "text-indigo-500 hover:text-indigo-500"
                                 : "text-neutral-400 hover:text-indigo-400"
                             }`}
                           >
                             <Droplets className="w-4 h-4" />
                             Manage Liquidity
-                          </button>
-                          <button
-                            onClick={() => setCurrentView("trending")}
+                          </Link>
+                          <Link
+                            href="/trending"
                             className={`px-2 sm:px-4 py-2 text-base font-medium rounded-md transition-colors flex items-center gap-2 ${
-                              currentView === "trending"
+                              pathname === "/trending"
                                 ? "text-indigo-500 hover:text-indigo-500"
                                 : "text-neutral-400 hover:text-indigo-400"
                             }`}
                           >
                             <TrendingUp className="w-4 h-4" />
-                            Copy Trending Tokens
+                            Copy Trending Coins
                             <span className="ml-2 px-1.5 py-0.5 text-xs font-semibold bg-green-500 text-white rounded-full">
                               NEW
                             </span>
-                          </button>
+                          </Link>
                         </div>
                       </nav>
                     </div>
@@ -444,131 +440,108 @@ const WalletProvider: FC = () => {
                         <WalletBalance />
                       </div>
 
-                      <button
+                      <Link
+                        href="/"
                         onClick={() => {
-                          setCurrentView("create");
                           setIsMobileMenuOpen(false);
                         }}
                         className={`px-4 py-3 text-base font-medium rounded-md transition-colors flex items-center gap-2 ${
-                          currentView === "create"
+                          pathname === "/"
                             ? "bg-indigo-600 text-white"
                             : "text-neutral-400 hover:bg-neutral-800"
                         }`}
                       >
                         <Coins className="w-5 h-5" />
-                        Create Token
-                      </button>
-                      <button
+                        Create Coin
+                      </Link>
+                      <Link
+                        href="/liquidity"
                         onClick={() => {
-                          setCurrentView("createPool");
                           setIsMobileMenuOpen(false);
                         }}
                         className={`px-4 py-3 text-base font-medium rounded-md transition-colors flex items-center gap-2 ${
-                          currentView === "createPool"
+                          pathname === "/liquidity"
                             ? "bg-indigo-600 text-white"
                             : "text-neutral-400 hover:bg-neutral-800"
                         }`}
                       >
                         <Droplets className="w-5 h-5" />
                         Manage Liquidity
-                      </button>
-                      <button
+                      </Link>
+                      <Link
+                        href="/trending"
                         onClick={() => {
-                          setCurrentView("trending");
                           setIsMobileMenuOpen(false);
                         }}
                         className={`px-4 py-3 text-base font-medium rounded-md transition-colors flex items-center gap-2 ${
-                          currentView === "trending"
+                          pathname === "/trending"
                             ? "bg-indigo-600 text-white"
                             : "text-neutral-400 hover:bg-neutral-800"
                         }`}
                       >
                         <TrendingUp className="w-5 h-5" />
-                        Copy Trending Tokens
+                        Copy Trending Coins
                         <span className="ml-2 px-1.5 py-0.5 text-xs font-semibold bg-green-500 text-white rounded-full">
                           NEW
                         </span>
-                      </button>
+                      </Link>
                     </div>
                   </div>
                 )}
               </div>
             </header>
             <DynamicAnnouncementBanner />
-            <main className="flex-1 flex flex-col items-center justify-center px-4 sm:px-0 pt-8 sm:pt-16 bg-neutral-900">
-              {currentView === "create" && (
-                <>
-                  <h1 className="text-2xl sm:text-4xl font-bold mb-2 text-white bg-indigo-600 px-4 py-2 rounded-lg Lexend text-center">
-                    Create Your Own Token FAST ⚡
-                  </h1>
-                  <p className="text-base sm:text-lg text-neutral-400 text-center mb-6 sm:mb-0">
-                    Launch your own token on Solana in seconds. No coding
-                    required.
-                  </p>
-                  <TokenCreationForm setCurrentView={setCurrentView} />
-                  <GuideFaq />
-                </>
-              )}
-              {currentView === "affiliate" && <AffiliatePage />}
-              {currentView === "createPool" && (
-                <CreatePoolComponent
-                  initialTokenAddress={
-                    localStorage.getItem("pendingPoolToken") || undefined
-                  }
-                />
-              )}
-              {currentView === "trending" && (
-                <TrendingTokensList setCurrentView={setCurrentView} />
-              )}
 
-              {/* Footer */}
-              <footer className="w-full bg-neutral-800 border-t border-neutral-700 py-8 sm:py-12 mt-16 rounded-t sm:rounded-none border-x sm:border-x-0">
-                <div className="max-w-7xl mx-auto px-4">
-                  <p className="text-xs sm:text-sm text-neutral-400 mb-6 leading-relaxed">
-                    memefast.fun is a token creation platform that allows users
-                    to generate Solana-based tokens instantly, with no coding
-                    required. memefast.fun does not issue, endorse, manage, or
-                    provide liquidity for any tokens created using our service.
-                    We do not provide financial advice, investment
-                    recommendations, or guarantees of value, price, or returns
-                    on any tokens. Tokens created on memefast.fun are not
-                    securities, and users are solely responsible for ensuring
-                    compliance with applicable laws and regulations in their
-                    jurisdiction. memefast.fun does not facilitate token
-                    trading, fundraising, or liquidity provision. By using
-                    memefast.fun, you acknowledge that creating and trading
-                    tokens carry significant risks, including loss of funds,
-                    market volatility, and regulatory uncertainty. memefast.fun
-                    is provided &quot;as is&quot; without warranties of any
-                    kind. We are not responsible for any outcomes related to the
-                    use of our platform. By using memefast.fun, you accept full
-                    responsibility for your actions and any consequences that
-                    may arise. Always conduct your own due diligence before
-                    engaging with any token or project.
-                  </p>
-                  <div className="text-xs sm:text-sm text-neutral-500 flex flex-wrap items-center justify-between">
-                    <span>© 2025 memefast.fun | All Rights Reserved</span>
-                    <div className="items-center space-x-4">
-                      <a
-                        href="https://t.me/memefastfun"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="hover:text-neutral-300 flex items-center gap-2"
+            <main className="flex-1 flex flex-col items-center justify-center px-4 sm:px-0 pt-8 sm:pt-16 bg-neutral-900">
+              {children}
+            </main>
+
+            {/* Footer */}
+            <footer className="w-full bg-neutral-800 border-t border-neutral-700 py-8 sm:py-12 mt-16 rounded-t sm:rounded-none border-x sm:border-x-0">
+              <div className="max-w-7xl mx-auto px-4">
+                <p className="text-xs sm:text-sm text-neutral-400 mb-6 leading-relaxed">
+                  memefast.fun is a token creation platform that allows users to
+                  generate Solana-based tokens instantly, with no coding
+                  required. memefast.fun does not issue, endorse, manage, or
+                  provide liquidity for any tokens created using our service. We
+                  do not provide financial advice, investment recommendations,
+                  or guarantees of value, price, or returns on any tokens.
+                  Tokens created on memefast.fun are not securities, and users
+                  are solely responsible for ensuring compliance with applicable
+                  laws and regulations in their jurisdiction. memefast.fun does
+                  not facilitate token trading, fundraising, or liquidity
+                  provision. By using memefast.fun, you acknowledge that
+                  creating and trading tokens carry significant risks, including
+                  loss of funds, market volatility, and regulatory uncertainty.
+                  memefast.fun is provided &quot;as is&quot; without warranties
+                  of any kind. We are not responsible for any outcomes related
+                  to the use of our platform. By using memefast.fun, you accept
+                  full responsibility for your actions and any consequences that
+                  may arise. Always conduct your own due diligence before
+                  engaging with any token or project.
+                </p>
+                <div className="text-xs sm:text-sm text-neutral-500 flex flex-wrap items-center justify-between">
+                  <span>© 2025 memefast.fun | All Rights Reserved</span>
+                  <div className="items-center space-x-4">
+                    <a
+                      href="https://t.me/memefastfun"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-neutral-300 flex items-center gap-2"
+                    >
+                      <svg
+                        viewBox="0 0 24 24"
+                        className="w-4 h-4 fill-current"
+                        xmlns="http://www.w3.org/2000/svg"
                       >
-                        <svg
-                          viewBox="0 0 24 24"
-                          className="w-4 h-4 fill-current"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .24z" />
-                        </svg>
-                        Support on Telegram @memefastfun
-                      </a>
-                    </div>
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .24z" />
+                      </svg>
+                      Support on Telegram @memefastfun
+                    </a>
                   </div>
                 </div>
-              </footer>
-            </main>
+              </div>
+            </footer>
           </div>
         </WalletModalProvider>
       </SolanaWalletProvider>

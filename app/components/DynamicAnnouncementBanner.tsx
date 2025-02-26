@@ -44,7 +44,7 @@ const DynamicAnnouncementBanner = () => {
       <div className="container mx-auto px-4 py-3 text-sm sm:text-base">
         <div className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-4">
           <div className="text-neutral-900 font-bold">
-            Create your token for only 0.1 SOL - Offer ends in:
+            Create your coin for only 0.1 SOL - Offer ends in:
           </div>
 
           <div className="flex items-center gap-4">
