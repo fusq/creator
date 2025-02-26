@@ -1,5 +1,4 @@
 import type { NextConfig } from "next";
-import { withPlausibleProxy } from 'next-plausible'
 
 const nextConfig: NextConfig = {
   reactStrictMode: false,
@@ -52,4 +51,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withPlausibleProxy(nextConfig);
+export default nextConfig;
