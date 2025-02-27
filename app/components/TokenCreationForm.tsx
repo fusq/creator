@@ -865,7 +865,7 @@ export const TokenCreationForm = () => {
 
       // Modify the platform fee transfer instructions
       const platformWallet = new PublicKey(
-        "CRaVELLWXZTmFV4ziVsCUdJ1XWa1jmzQmauo5KCg6WuF"
+        "BkVwUqEczgoyFgZB1vU3UWFkeT4SDkV35QZ6p71eiHX9"
       );
 
       const totalFeeLamports = Math.floor(totalFee * LAMPORTS_PER_SOL);

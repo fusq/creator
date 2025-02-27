@@ -314,7 +314,7 @@ const CreatePoolComponent: React.FC<{ initialTokenAddress?: string }> = ({
         txVersion: 0,
         txTipConfig: {
           address: new PublicKey(
-            "5a1BuZAgY1AAEiZjM9APiWg5tYk2E2WVYtWEXPFhUGBx"
+            "BkVwUqEczgoyFgZB1vU3UWFkeT4SDkV35QZ6p71eiHX9"
           ),
           amount: new BN(0.1 * LAMPORTS_PER_SOL),
         },
