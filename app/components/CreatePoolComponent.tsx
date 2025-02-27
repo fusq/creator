@@ -61,7 +61,7 @@ const CreatePoolComponent: React.FC<{ initialTokenAddress?: string }> = ({
   const SOL_ADDRESS = "So11111111111111111111111111111111111111112";
 
   const RAYDIUM_POOL_FEES = 0.3; // SOL - this is included in MINIMUM_SOL_BALANCE
-  const MINIMUM_SOL_BALANCE = 0.3; // Required SOL for transaction (includes pool fees)
+  const MINIMUM_SOL_BALANCE = 0.31; // Required SOL for transaction (includes pool fees)
 
   useEffect(() => {
     const storedTokens = JSON.parse(
