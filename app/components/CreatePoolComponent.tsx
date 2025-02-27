@@ -186,26 +186,45 @@ const CreatePoolComponent: React.FC<{ initialTokenAddress?: string }> = ({
     }
   };
 
-  const isCreatePoolDisabled = () => {
-    // Check if any amount is 0 or empty
-    if (
-      !amountA ||
-      !amountB ||
-      parseFloat(amountA) === 0 ||
-      parseFloat(amountB) === 0
-    ) {
-      return true;
+  const getCreatePoolDisabledReason = () => {
+    if (!publicKey) {
+      return "Please connect your wallet";
+    }
+
+    if (!mintA) {
+      return "Please select Token A";
+    }
+
+    if (!amountA || parseFloat(amountA) === 0) {
+      return "Please enter amount for Token A";
+    }
+
+    if (!amountB || parseFloat(amountB) === 0) {
+      return "Please enter amount for Token B";
     }
 
     const solBalance = tokenBalances[SOL_ADDRESS] || 0;
 
     // If Token B is SOL, add its amount to minimum required SOL
     if (mintB.symbol === "SOL") {
-      return solBalance < MINIMUM_SOL_BALANCE + parseFloat(amountB);
+      const requiredSol = MINIMUM_SOL_BALANCE + parseFloat(amountB);
+      if (solBalance < requiredSol) {
+        return `Insufficient SOL balance. Required: ${requiredSol.toFixed(
+          2
+        )} SOL`;
+      }
+    } else if (solBalance < MINIMUM_SOL_BALANCE) {
+      // If Token B is not SOL, just check minimum required SOL
+      return `Insufficient SOL balance. Required: ${MINIMUM_SOL_BALANCE.toFixed(
+        2
+      )} SOL`;
     }
 
-    // If Token B is not SOL, just check minimum required SOL
-    return solBalance < MINIMUM_SOL_BALANCE;
+    return null;
+  };
+
+  const isCreatePoolDisabled = () => {
+    return getCreatePoolDisabledReason() !== null;
   };
 
   const showToast = (message: string, type: "success" | "error") => {
@@ -558,7 +577,8 @@ const CreatePoolComponent: React.FC<{ initialTokenAddress?: string }> = ({
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1">
                   Amount Token B{" "}
-                  {mintB.symbol === "SOL" && "(0.2 SOL reserved for fees)"}
+                  {mintB.symbol === "SOL" &&
+                    "(0.3 SOL reserved for Raydium fees)"}
                 </label>
                 <div className="flex space-x-2">
                   <div className="flex-1 relative">
@@ -611,6 +631,13 @@ const CreatePoolComponent: React.FC<{ initialTokenAddress?: string }> = ({
                   </>
                 )}
               </button>
+
+              {/* Display reason why button is disabled */}
+              {!loading && isCreatePoolDisabled() && (
+                <div className="mt-2 text-sm text-red-400">
+                  {getCreatePoolDisabledReason()}
+                </div>
+              )}
             </>
           )}
         </div>
