@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { headers } from 'next/headers';
 
 // Define an interface for the coin data
 interface Coin {
@@ -8,8 +9,44 @@ interface Coin {
 }
 
 export async function GET() {
+  const headersList = await headers();
+  const origin = headersList.get('origin') || '';
+  const referer = headersList.get('referer') || '';
+  const host = headersList.get('host') || '';
+  
+  // Directly define allowed domains
+  const allowedDomains = ['memefast.fun', 'localhost:3000'];
+  
+  // Check if request is from an allowed domain
+  const originHost = origin ? new URL(origin).hostname : '';
+  const refererHost = referer ? new URL(referer).hostname : '';
+  
+  const isAllowedOrigin = allowedDomains.some(domain => 
+    originHost === domain || originHost.endsWith(`.${domain}`)
+  );
+  
+  const isAllowedReferer = allowedDomains.some(domain => 
+    refererHost === domain || refererHost.endsWith(`.${domain}`)
+  );
+  
+  // Check if this is a same-origin request (important for Next.js in development)
+  const isSameOriginRequest = host.includes('localhost:3000') || host.includes('memefast.fun');
+  
+  // Allow if origin/referer is valid OR if it's a same-origin request
+  if ((!isAllowedOrigin && !isAllowedReferer) && !isSameOriginRequest) {
+    console.log('Unauthorized request detected:');
+    console.log('Origin:', origin);
+    console.log('Referer:', referer);
+    console.log('Host:', host);
+    
+    return NextResponse.json(
+      { error: 'Unauthorized' },
+      { status: 401 }
+    );
+  }
+
   try {
-    const totalPages = 3; // Fetching 4 pages (200 coins total)
+    const totalPages = 3; // Fetching 3 pages (150 coins total)
     let allCoins: Coin[] = [];
 
     // Fetch multiple pages
