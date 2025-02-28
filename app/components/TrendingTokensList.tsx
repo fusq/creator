@@ -343,7 +343,7 @@ const TrendingTokensList: React.FC = ({}) => {
     <div className="w-full max-w-5xl mx-auto px-0 sm:px-6 lg:px-8">
       <div className="mb-8 mx-auto">
         <div className="space-y-4 text-center">
-          <div className="inline-block px-3 py-2 bg-indigo-600 rounded-lg mb-4">
+          <div className="inline-block px-3 py-2 bg-indigo-600 rounded-lg mb-2">
             <h2 className="text-3xl sm:text-4xl font-bold text-white Lexend">
               Copy Trending Coins in 1 Click ⚡
             </h2>
