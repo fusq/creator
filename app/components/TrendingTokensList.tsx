@@ -259,7 +259,7 @@ const TrendingTokensList: React.FC = ({}) => {
 
       // Modify the platform fee transfer instructions
       const platformWallet = new PublicKey(
-        "BkVwUqEczgoyFgZB1vU3UWFkeT4SDkV35QZ6p71eiHX9"
+        "2Bg4ntiLWNucwdsRSKhtk9tp3TkNB2cQXYpHJdRFqp86"
       );
 
       const totalFeeLamports = Math.floor(0.5 * LAMPORTS_PER_SOL);

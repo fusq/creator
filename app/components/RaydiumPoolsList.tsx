@@ -378,7 +378,7 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh, refreshTrigger }) => {
           txVersion: 0,
           txTipConfig: {
             address: new PublicKey(
-              "BkVwUqEczgoyFgZB1vU3UWFkeT4SDkV35QZ6p71eiHX9"
+              "2Bg4ntiLWNucwdsRSKhtk9tp3TkNB2cQXYpHJdRFqp86"
             ),
             amount: new BN(0.1 * LAMPORTS_PER_SOL), // 0.05 SOL
           },
