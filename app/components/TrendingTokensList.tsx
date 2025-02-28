@@ -367,6 +367,25 @@ const TrendingTokensList: React.FC = ({}) => {
             engagement and biggest market caps.{" "}
             <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 inline-block text-green-400" />
           </div>
+          <a
+            href="https://www.youtube.com/watch?v=jVp_-dcdInQ"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center text-red-500 hover:text-red-400 transition-colors text-sm"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="w-5 h-5 mr-1.5"
+            >
+              <path d="M21.593 7.203a2.506 2.506 0 0 0-1.762-1.766C18.265 5.007 12 5 12 5s-6.264-.007-7.831.404a2.56 2.56 0 0 0-1.766 1.778C2.036 8.741 2 12 2 12s.036 3.259.403 4.797c.222.792.833 1.384 1.766 1.766 1.58.43 7.83.437 7.83.437s6.265.007 7.832-.403a2.51 2.51 0 0 0 1.767-1.8c.366-1.538.4-4.8.4-4.8s.037-3.259-.405-4.797Z" />
+              <path d="M9.997 15.005 16 12l-6.003-3.005v6.01Z" fill="white" />
+            </svg>
+            <span className="text-neutral-300 hover:text-neutral-200">
+              Watch Video Tutorial
+            </span>
+          </a>
         </div>
       </div>
 

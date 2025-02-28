@@ -9,7 +9,7 @@ interface Coin {
 
 export async function GET() {
   try {
-    const totalPages = 4; // Fetching 4 pages (200 coins total)
+    const totalPages = 3; // Fetching 4 pages (200 coins total)
     let allCoins: Coin[] = [];
 
     // Fetch multiple pages
