@@ -666,7 +666,7 @@ export const TokenCreationForm = () => {
     }
 
     // Calculate total SOL fee based on selected options
-    const baseFee = 0.1; // Base fee for token creation
+    const baseFee = 0.2; // Base fee for token creation
     const revokeMintFee = formData.revokeMint ? 0.1 : 0.1;
     const revokeFreezeFee = formData.revokeFreeze ? 0.1 : 0.1;
     const revokeUpdateFee = formData.revokeUpdateAuthority ? 0.1 : 0.1;
