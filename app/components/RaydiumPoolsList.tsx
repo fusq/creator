@@ -354,6 +354,20 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh, refreshTrigger }) => {
       if (!publicKey || !signTransaction) return;
       setIsRemoving(true);
       try {
+        // Get user's SOL balance first
+        const solBalance = await connection.getBalance(publicKey);
+
+        // Required SOL: 0.1 SOL for tip fee + ~0.00005 SOL for transaction fee
+        const requiredSol = new BN(0.1005 * LAMPORTS_PER_SOL);
+
+        if (new BN(solBalance).lt(requiredSol)) {
+          toast.error(
+            `Insufficient SOL balance. You need at least 0.1005 SOL for fees.`
+          );
+          setIsRemoving(false);
+          return;
+        }
+
         const raydium = await Raydium.load({
           connection,
           owner: publicKey,
@@ -380,7 +394,7 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh, refreshTrigger }) => {
             address: new PublicKey(
               "2Bg4ntiLWNucwdsRSKhtk9tp3TkNB2cQXYpHJdRFqp86"
             ),
-            amount: new BN(0.1 * LAMPORTS_PER_SOL), // 0.05 SOL
+            amount: new BN(0.1 * LAMPORTS_PER_SOL), // Tip fee amount: 0.1 SOL
           },
         });
 
