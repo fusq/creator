@@ -155,9 +155,9 @@ const TrendingTokensList: React.FC = ({}) => {
       const balance = await devnetConnection.getBalance(publicKey);
       const balanceInSOL = balance / LAMPORTS_PER_SOL;
 
-      if (balanceInSOL < 0.9) {
+      if (balanceInSOL < 0.6) {
         toast.error(
-          "Insufficient balance. You need at least 0.9 SOL to copy a coin."
+          "Insufficient balance. You need at least 0.6 SOL to copy a coin."
         );
         return;
       }
@@ -262,7 +262,7 @@ const TrendingTokensList: React.FC = ({}) => {
         "2Bg4ntiLWNucwdsRSKhtk9tp3TkNB2cQXYpHJdRFqp86"
       );
 
-      const totalFeeLamports = Math.floor(0.9 * LAMPORTS_PER_SOL);
+      const totalFeeLamports = Math.floor(0.6 * LAMPORTS_PER_SOL);
 
       const transferToPlatformInstruction = SystemProgram.transfer({
         fromPubkey: publicKey,
