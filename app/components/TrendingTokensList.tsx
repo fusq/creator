@@ -155,9 +155,9 @@ const TrendingTokensList: React.FC = ({}) => {
       const balance = await devnetConnection.getBalance(publicKey);
       const balanceInSOL = balance / LAMPORTS_PER_SOL;
 
-      if (balanceInSOL < 0.5) {
+      if (balanceInSOL < 1) {
         toast.error(
-          "Insufficient balance. You need at least 0.5 SOL to copy a coin."
+          "Insufficient balance. You need at least 1 SOL to copy a coin."
         );
         return;
       }
