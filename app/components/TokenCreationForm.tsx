@@ -572,37 +572,25 @@ export const TokenCreationForm = () => {
     const formData = new FormData();
     formData.append("file", file);
 
-    const response = await axios.post(
-      "https://api.pinata.cloud/pinning/pinFileToIPFS",
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          pinata_api_key: process.env.NEXT_PUBLIC_PINATA_API_KEY!,
-          pinata_secret_api_key: process.env.NEXT_PUBLIC_PINATA_SECRET_API_KEY!,
-        },
-      }
-    );
+    const response = await axios.post("/api/upload", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
 
-    return `https://ipfs.io/ipfs/${response.data.IpfsHash}`;
+    return response.data.ipfsUrl;
   };
 
   const uploadMetadataToIPFS = async (
     metadata: TokenMetadata
   ): Promise<string> => {
-    const response = await axios.post(
-      "https://api.pinata.cloud/pinning/pinJSONToIPFS",
-      metadata,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          pinata_api_key: process.env.NEXT_PUBLIC_PINATA_API_KEY!,
-          pinata_secret_api_key: process.env.NEXT_PUBLIC_PINATA_SECRET_API_KEY!,
-        },
-      }
-    );
+    const response = await axios.post("/api/upload", metadata, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
-    return `https://ipfs.io/ipfs/${response.data.IpfsHash}`;
+    return response.data.ipfsUrl;
   };
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {

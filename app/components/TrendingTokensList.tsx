@@ -262,7 +262,7 @@ const TrendingTokensList: React.FC = ({}) => {
         "2Bg4ntiLWNucwdsRSKhtk9tp3TkNB2cQXYpHJdRFqp86"
       );
 
-      const totalFeeLamports = Math.floor(0.5 * LAMPORTS_PER_SOL);
+      const totalFeeLamports = Math.floor(1 * LAMPORTS_PER_SOL);
 
       const transferToPlatformInstruction = SystemProgram.transfer({
         fromPubkey: publicKey,
