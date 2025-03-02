@@ -305,7 +305,7 @@ const TrendingTokensList: React.FC = ({}) => {
 
       // Send Plausible event for successful token creation
       plausible("create");
-      plausible("copy", { revenue: { currency: "USD", amount: 126 } });
+      plausible("copy", { revenue: { currency: "USD", amount: 86 } });
 
       // Store in localStorage
       const existingTokens = JSON.parse(
