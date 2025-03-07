@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { Raydium, Percent } from "@raydium-io/raydium-sdk-v2";
 import { PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
@@ -6,6 +6,9 @@ import BN from "bn.js";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { usePlausible } from "next-plausible";
+import { Camera, Download } from "lucide-react";
+import html2canvas from "html2canvas";
+import { QRCodeSVG } from "qrcode.react";
 
 interface PoolInfo {
   configId: PublicKey;
@@ -37,6 +40,16 @@ interface StoredPool {
   tokenBSymbol: string;
   creationDate: string;
   txId: string;
+}
+
+interface CreatedToken {
+  tokenAddress: string;
+  txId: string;
+  name: string;
+  symbol: string;
+  totalSupply: string;
+  creationDate: string;
+  image?: string;
 }
 
 interface Props {
@@ -322,6 +335,9 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh, refreshTrigger }) => {
     const [isRemoving, setIsRemoving] = useState(false);
     const { connection } = useConnection();
     const { publicKey, signTransaction } = useWallet();
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+    const [shareImage, setShareImage] = useState<string | null>(null);
+    const shareCardRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
       const fetchLpBalance = async () => {
@@ -423,6 +439,150 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh, refreshTrigger }) => {
         ? profitLoss.difference * solPrice
         : null;
 
+    const generateShareImage = async () => {
+      if (!shareCardRef.current) return;
+
+      setIsShareModalOpen(true);
+
+      try {
+        // Create a clone of the card for rendering
+        const tempCard = shareCardRef.current.cloneNode(true) as HTMLElement;
+        tempCard.style.display = "block";
+        tempCard.style.position = "fixed";
+        tempCard.style.top = "-9999px";
+        tempCard.style.left = "-9999px";
+        document.body.appendChild(tempCard);
+
+        // Wait for images to load
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        // Use html2canvas
+        const canvas = await html2canvas(tempCard, {
+          allowTaint: true,
+          useCORS: true,
+          backgroundColor: "#111111",
+          scale: 2, // Higher quality
+        });
+
+        // Convert to image
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.95);
+        setShareImage(dataUrl);
+
+        // Remove the temporary card from DOM
+        document.body.removeChild(tempCard);
+      } catch (error) {
+        console.error("Error generating share image:", error);
+        toast.error("Failed to generate share image");
+      }
+    };
+
+    const downloadShareImage = () => {
+      if (!shareImage) return;
+
+      const link = document.createElement("a");
+      link.download = `memefast-pool-${poolInfo.symbols.a}-${poolInfo.symbols.b}.jpg`;
+      link.href = shareImage;
+      link.click();
+    };
+
+    const shareOnTwitter = () => {
+      if (!shareImage) return;
+
+      // Construct a message that includes both promotion and the direct buy link
+      const tokenName = getTokenName();
+      const tokenSymbol = getTokenToPromote().symbol;
+      const photonUrl = getPhotonUrl();
+
+      const text = `I just launched a new coin ${tokenName} ($${tokenSymbol})!\n\nMade with memefast.fun\n\nBuy it here: ${photonUrl}`;
+
+      // Open Twitter intent URL with the text
+      const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+        text
+      )}`;
+      window.open(url, "_blank");
+
+      // Show instruction toast about manually attaching the image
+      toast.info(
+        "To include the image in your tweet, please download it first and then attach it manually when composing your tweet.",
+        { autoClose: 10000 }
+      );
+    };
+
+    const getPhotonUrl = () => {
+      return `https://photon-sol.tinyastro.io/en/lp/${formatAddress(
+        poolInfo.poolId
+      )}`;
+    };
+
+    // Add a function to determine which token is the "featured" one to display
+    const getTokenToPromote = () => {
+      // If one of the tokens is SOL, promote the other one
+      if (poolInfo.symbols.a === "SOL") {
+        return {
+          symbol: poolInfo.symbols.b,
+          address: poolInfo.mintB.toString(),
+        };
+      } else if (poolInfo.symbols.b === "SOL") {
+        return {
+          symbol: poolInfo.symbols.a,
+          address: poolInfo.mintA.toString(),
+        };
+      }
+
+      // If there's no SOL, prefer token A (typically the custom token)
+      return {
+        symbol: poolInfo.symbols.a,
+        address: poolInfo.mintA.toString(),
+      };
+    };
+
+    const getTokenImage = () => {
+      const promotedToken = getTokenToPromote();
+
+      // Try to get the image from localStorage createdTokens
+      try {
+        const createdTokens: CreatedToken[] = JSON.parse(
+          localStorage.getItem("createdTokens") || "[]"
+        );
+        const tokenData = createdTokens.find(
+          (token) => token.tokenAddress === promotedToken.address
+        );
+
+        if (tokenData && tokenData.image) {
+          return tokenData.image; // Return the IPFS image URL
+        }
+      } catch (error) {
+        console.error("Error getting token image from localStorage:", error);
+      }
+
+      // Fallback to Raydium image
+      return `https://img-v1.raydium.io/icon/${promotedToken.address}.png`;
+    };
+
+    // First, add a function to get the token name
+    const getTokenName = () => {
+      const promotedToken = getTokenToPromote();
+
+      // Try to get the name from localStorage createdTokens
+      try {
+        const createdTokens: CreatedToken[] = JSON.parse(
+          localStorage.getItem("createdTokens") || "[]"
+        );
+        const tokenData = createdTokens.find(
+          (token) => token.tokenAddress === promotedToken.address
+        );
+
+        if (tokenData && tokenData.name) {
+          return tokenData.name;
+        }
+      } catch (error) {
+        console.error("Error getting token name from localStorage:", error);
+      }
+
+      // Fallback to symbol if name not found
+      return promotedToken.symbol;
+    };
+
     return (
       <div className="bg-neutral-800 p-4 sm:p-6 rounded-lg space-y-4 sm:space-y-6 w-full sm:w-[800px] relative">
         {/* Token Pair Header */}
@@ -489,11 +649,18 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh, refreshTrigger }) => {
             </div>
           </div>
           <div className="flex items-center space-x-2">
+            {/* Share Button */}
+            <button
+              onClick={generateShareImage}
+              className="flex-1 sm:flex-none flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-700 rounded-lg text-white transition-colors px-3 py-2 text-sm font-semibold"
+            >
+              <Camera className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="">Share</span>
+            </button>
+
             {/* View on Photon Button */}
             <a
-              href={`https://photon-sol.tinyastro.io/en/lp/${formatAddress(
-                poolInfo.poolId
-              )}`}
+              href={getPhotonUrl()}
               target="_blank"
               rel="noopener noreferrer"
               className="flex-1 sm:flex-none flex items-center justify-center space-x-2 bg-indigo-500 hover:bg-indigo-600 rounded-lg text-white transition-colors px-3 py-2 text-sm font-semibold"
@@ -701,6 +868,174 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh, refreshTrigger }) => {
             </div>
           </div>
         )}
+
+        {/* Share Image Modal */}
+        {isShareModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+            <div className="bg-neutral-800 p-6 rounded-lg max-w-xl w-full">
+              <h2 className="text-xl font-bold text-white mb-4">
+                Share Your Pool
+              </h2>
+
+              {shareImage ? (
+                <div className="flex flex-col items-center">
+                  <img
+                    src={shareImage}
+                    alt="Shareable Pool Card"
+                    className="w-full rounded-lg shadow-lg mb-4"
+                  />
+                  <div className="grid grid-cols-2 gap-3 w-full">
+                    <button
+                      onClick={downloadShareImage}
+                      className="p-2 bg-indigo-500 text-white rounded hover:bg-indigo-600 flex items-center justify-center gap-2"
+                    >
+                      <Download className="w-5 h-5" />
+                      <span>Download</span>
+                    </button>
+                    <button
+                      onClick={shareOnTwitter}
+                      className="p-2 bg-black text-white rounded hover:bg-gray-800 flex items-center justify-center gap-2"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="w-5 h-5"
+                      >
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                      </svg>
+                      <span>Share on X</span>
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex justify-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+                </div>
+              )}
+
+              <button
+                onClick={() => setIsShareModalOpen(false)}
+                className="w-full p-2 mt-4 bg-neutral-700 text-white rounded hover:bg-neutral-600"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Share card template - completely hidden */}
+        <div
+          style={{
+            display: "none",
+            position: "absolute",
+            visibility: "hidden",
+          }}
+        >
+          <div
+            ref={shareCardRef}
+            className="p-8 rounded-lg w-[550px] h-[550px] relative overflow-hidden"
+            style={{
+              background:
+                "radial-gradient(circle at top right, rgba(79, 70, 229, 0.2) 0%, rgba(16, 16, 18, 0.95) 50%, rgba(23, 23, 23, 0.98) 100%), linear-gradient(to bottom right, #111111, #1a1a1a)",
+            }}
+          >
+            {/* Logo and Header */}
+            <div className="flex justify-between items-center mb-6">
+              <div className="flex items-center">
+                <img
+                  src="/images/logo.png"
+                  alt="MemeFast Logo"
+                  className="h-10"
+                  onError={(e) => {
+                    e.currentTarget.src = "/favicon.ico";
+                  }}
+                />
+                <span className="text-xl font-bold text-white ml-3 Lexend flex items-center mb-[18px]">
+                  Meme<span className="text-indigo-400">Fast</span>.fun
+                </span>
+              </div>
+              <div className="text-gray-400 text-sm mb-[15px]">
+                Create your own coin in seconds.
+              </div>
+            </div>
+
+            {/* Call to action message */}
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold text-white mb-4">
+                I just launched a new coin!
+              </h2>
+              <div className="flex items-center justify-center mt-6">
+                <img
+                  src={getTokenImage()}
+                  alt={getTokenToPromote().symbol}
+                  className="w-16 h-16 rounded-full mr-4 bg-neutral-800 border border-neutral-700"
+                  onError={(e) => {
+                    e.currentTarget.src = "/placeholder-token.svg";
+                  }}
+                />
+                <div>
+                  <p className="text-2xl text-white font-medium text-left">
+                    {getTokenName()}{" "}
+                    <span className="text-green-400 font-bold">
+                      (${getTokenToPromote().symbol})
+                    </span>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Grid layout adjusted for square format */}
+            <div className="grid grid-cols-2 gap-8 mt-8">
+              {/* QR Code container */}
+              <div className="flex flex-col items-center justify-center">
+                <div className="bg-white p-4 rounded-lg">
+                  <QRCodeSVG
+                    value={getPhotonUrl()}
+                    size={200}
+                    bgColor={"#ffffff"}
+                    fgColor={"#000000"}
+                    level={"L"}
+                    includeMargin={false}
+                  />
+                </div>
+                <p className="text-white text-sm mt-2 font-medium">
+                  Scan to buy
+                </p>
+              </div>
+
+              {/* Stats and info */}
+              <div className="flex flex-col justify-start">
+                {profitLoss && profitLoss.percentageChange > 0 && (
+                  <div className="mb-6">
+                    <div className="text-gray-400 text-sm">Already up</div>
+                    <div className="text-4xl font-bold text-green-400">
+                      +{profitLoss.percentageChange.toFixed(2)}%
+                    </div>
+                  </div>
+                )}
+
+                <div className="mb-6">
+                  <div className="text-gray-400 text-sm">
+                    Get it while it&apos;s hot!
+                  </div>
+                  <div className="text-2xl font-semibold text-white">
+                    Buy Now
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-xs text-gray-400">Token Address:</div>
+                  <div className="text-sm text-white break-all font-mono">
+                    {getTokenToPromote().address}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   };
