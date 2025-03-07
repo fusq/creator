@@ -976,8 +976,8 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh, refreshTrigger }) => {
                     e.currentTarget.src = "/placeholder-token.svg";
                   }}
                 />
-                <div className="flex items-center h-16">
-                  <p className="text-2xl text-white font-medium">
+                <div className="self-center mb-[18px]">
+                  <p className="text-2xl text-white font-medium my-0 py-0 leading-normal">
                     {getTokenName()}{" "}
                     <span className="text-green-400 font-bold">
                       (${getTokenToPromote().symbol})
