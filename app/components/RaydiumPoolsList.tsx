@@ -874,7 +874,7 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh, refreshTrigger }) => {
           <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
             <div className="bg-neutral-800 p-6 rounded-lg max-w-xl w-full">
               <h2 className="text-xl font-bold text-white mb-4">
-                Share Your Pool
+                Share Your Coin
               </h2>
 
               {shareImage ? (
