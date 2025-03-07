@@ -971,13 +971,13 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh, refreshTrigger }) => {
                 <img
                   src={getTokenImage()}
                   alt={getTokenToPromote().symbol}
-                  className="w-16 h-16 rounded-full mr-4 bg-neutral-800 border border-neutral-700"
+                  className="w-16 h-16 rounded-full mr-4 bg-neutral-800 border border-neutral-700 flex-shrink-0"
                   onError={(e) => {
                     e.currentTarget.src = "/placeholder-token.svg";
                   }}
                 />
-                <div>
-                  <p className="text-2xl text-white font-medium text-left">
+                <div className="flex items-center h-16">
+                  <p className="text-2xl text-white font-medium">
                     {getTokenName()}{" "}
                     <span className="text-green-400 font-bold">
                       (${getTokenToPromote().symbol})
