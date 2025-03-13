@@ -6,7 +6,7 @@ import BN from "bn.js";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { usePlausible } from "next-plausible";
-import { Camera, Download } from "lucide-react";
+import { Download, Share2 } from "lucide-react";
 import html2canvas from "html2canvas";
 import { QRCodeSVG } from "qrcode.react";
 
@@ -654,7 +654,7 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh, refreshTrigger }) => {
               onClick={generateShareImage}
               className="flex-1 sm:flex-none flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-700 rounded-lg text-white transition-colors px-3 py-2 text-sm font-semibold"
             >
-              <Camera className="w-4 h-4 sm:w-5 sm:h-5" />
+              <Share2 className="w-4 h-4 sm:w-5 sm:h-5" />
               <span className="">Share</span>
             </button>
 
@@ -871,7 +871,10 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh, refreshTrigger }) => {
 
         {/* Share Image Modal */}
         {isShareModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+          <div
+            className="fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
+            style={{ margin: 0, padding: 0 }}
+          >
             <div className="bg-neutral-800 p-6 rounded-lg max-w-xl w-full">
               <h2 className="text-xl font-bold text-white mb-4">
                 Share Your Coin
@@ -938,15 +941,18 @@ const RaydiumPoolsList: React.FC<Props> = ({ onRefresh, refreshTrigger }) => {
             ref={shareCardRef}
             className="p-8 rounded-lg w-[550px] h-[550px] relative overflow-hidden"
             style={{
-              background:
-                "radial-gradient(circle at top right, rgba(79, 70, 229, 0.2) 0%, rgba(16, 16, 18, 0.95) 50%, rgba(23, 23, 23, 0.98) 100%), linear-gradient(to bottom right, #111111, #1a1a1a)",
+              background: `
+                url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M-10 30L30 -10M0 40L40 0M10 50L50 10' stroke='rgba(255,255,255,0.03)' fill='none' stroke-width='1.5'/%3E%3C/svg%3E"),
+                radial-gradient(circle at top right, rgba(79, 70, 229, 0.2) 0%, rgba(16, 16, 18, 0.95) 50%, rgba(23, 23, 23, 0.98) 100%), 
+                linear-gradient(to bottom right, #111111, #1a1a1a)
+              `,
             }}
           >
             {/* Logo and Header */}
             <div className="flex justify-between items-center mb-6">
               <div className="flex items-center">
                 <img
-                  src="/images/logo.png"
+                  src="/memefast.png"
                   alt="MemeFast Logo"
                   className="h-10"
                   onError={(e) => {
